@@ -8,9 +8,10 @@ import {findAllUniquePositions} from "../util/FilterUtils";
 
 export class DefaultMutationMapperDataStore implements DataStore
 {
-    @observable public dataFilters: DataFilter[] = [];
-    @observable public selectionFilters: DataFilter[] = [];
-    @observable public highlightFilters: DataFilter[] = [];
+    @observable public dataFilters: DataFilter[];
+    @observable public selectionFilters: DataFilter[];
+    @observable public highlightFilters: DataFilter[];
+    @observable public groupFilters: {group: string, filter: DataFilter}[];
 
     // TODO simplify data if possible
     private data: Array<Mutation | Mutation[]>;
@@ -20,10 +21,23 @@ export class DefaultMutationMapperDataStore implements DataStore
     protected applyCustomFilter: CustomFilterApplier | undefined;
 
     constructor(data: Array<Mutation | Mutation[]>,
-                applyCustomFilter?: CustomFilterApplier)
+                applyCustomFilter?: CustomFilterApplier,
+                dataFilters: DataFilter[] = [],
+                selectionFilters: DataFilter[] = [],
+                highlightFilters: DataFilter[] = [],
+                groupFilters: {group: string, filter: DataFilter}[] = [])
     {
         this.data = data;
         this.applyCustomFilter = applyCustomFilter;
+
+        this.dataFilters = dataFilters;
+        this.selectionFilters = selectionFilters;
+        this.highlightFilters= highlightFilters;
+        this.groupFilters = groupFilters;
+    }
+
+    @computed get groupFiltersKeyedByGroup() {
+        return _.keyBy(this.groupFilters, "group");
     }
 
     @computed
@@ -34,6 +48,7 @@ export class DefaultMutationMapperDataStore implements DataStore
     @computed
     public get filteredData() {
         return this.dataFilters.length > 0 ?
+            // TODO simplify array flatten if possible
             this.data.filter(m => this.dataMainFilter(_.flatten([m])[0])): this.data;
     }
 
@@ -43,10 +58,21 @@ export class DefaultMutationMapperDataStore implements DataStore
     }
 
     @computed
+    public get sortedFilteredGroupedData()
+    {
+        return this.groupFilters.map(groupFilter => ({
+            group: groupFilter.group,
+            data: this.sortedFilteredData.filter(
+                // TODO simplify array flatten if possible
+                m => this.applyFilter(groupFilter.filter, _.flatten([m])[0]))
+        }));
+    }
+
+    @computed
     public get sortedFilteredSelectedData() {
         return this.selectionFilters.length > 0 ?
             // TODO simplify array flatten if possible
-            this.data.filter(m => this.dataSelectFilter(_.flatten([m])[0])) : [];
+            this.sortedFilteredData.filter(m => this.dataSelectFilter(_.flatten([m])[0])) : [];
     }
 
     @computed
@@ -84,6 +110,11 @@ export class DefaultMutationMapperDataStore implements DataStore
         this.selectionFilters = filters;
     };
 
+    @action
+    public setGroupFilters(filters:  {group: string, filter: DataFilter}[]) {
+        this.groupFilters = filters;
+    };
+
     public isPositionSelected(position: number) {
         return !!this.selectedPositions[position+""];
     }
@@ -97,7 +128,7 @@ export class DefaultMutationMapperDataStore implements DataStore
         return (
             this.dataFilters.length > 0 &&
             !this.dataFilters
-                .map(dataFilter => this.applyFilter(dataFilter, mutation, this.selectedPositions))
+                .map(dataFilter => this.applyFilter(dataFilter, mutation))
                 .includes(false)
         );
     }
@@ -122,7 +153,9 @@ export class DefaultMutationMapperDataStore implements DataStore
         );
     }
 
-    public applyFilter(filter: DataFilter, mutation: Mutation, positions: {[position: string]: {position: number}})
+    public applyFilter(filter: DataFilter,
+                       mutation: Mutation,
+                       positions?: {[position: string]: {position: number}}): boolean
     {
         if (this.applyCustomFilter) {
             // let the custom filter applier decide how to apply the given filter
@@ -130,7 +163,7 @@ export class DefaultMutationMapperDataStore implements DataStore
         }
         else {
             // by default only filter by position
-            return !!positions[mutation.proteinPosStart+""];
+            return !positions || !!positions[mutation.proteinPosStart+""];
         }
     }
 }

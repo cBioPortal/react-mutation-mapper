@@ -17,6 +17,10 @@ export type LollipopPlotProps = {
     vizHeight: number;
     xMax: number;
     yMax?: number;
+    bottomYMax?: number;
+    xAxisOnTop?: boolean;
+    xAxisOnBottom?: boolean;
+    groups?: string[];
     hugoGeneSymbol: string;
     dataStore: DataStore;
     onXAxisOffset?: (offset: number) => void;

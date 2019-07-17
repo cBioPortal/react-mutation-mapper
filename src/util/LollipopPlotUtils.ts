@@ -1,5 +1,6 @@
 import {getTextWidth, longestCommonStartingSubstring} from "cbioportal-frontend-commons";
 
+import {LollipopSpec} from "../model/LollipopSpec";
 import {Mutation} from "../model/Mutation";
 import {countMutationsByProteinChange} from "./MutationUtils";
 
@@ -58,4 +59,33 @@ export function lollipopLabelTextAnchor(labelText: string,
     }
 
     return anchor;
+}
+
+export function getYAxisMaxSliderValue(event: any, countRange: [number, number])
+{
+    const inputValue: string = (event.target as HTMLInputElement).value;
+    const value = parseInt(inputValue, 10);
+
+    return value < countRange[0] ? countRange[0] : value;
+}
+
+export function getYAxisMaxInputValue(input: string, countRange: [number, number])
+{
+    const value = parseInt(input, 10);
+    return value < countRange[0] ? countRange[0] : value;
+}
+
+export function calcCountRange(lollipops: LollipopSpec[]): [number, number]
+{
+    if (lollipops.length === 0) {
+        return [0,0];
+    } else {
+        let max = 5;
+        let min = 1;
+        for (const lollipop of lollipops) {
+            max = Math.max(max, lollipop.count);
+            min = Math.min(min, lollipop.count);
+        }
+        return [min, max];
+    }
 }

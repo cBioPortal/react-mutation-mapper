@@ -1,6 +1,6 @@
 import autobind from "autobind-decorator";
 import _ from "lodash";
-import {computed, observable, action} from "mobx";
+import {action, computed, observable} from "mobx";
 import {observer} from "mobx-react";
 import * as React from "react";
 import {Collapse} from "react-collapse";
@@ -8,13 +8,19 @@ import {Collapse} from "react-collapse";
 import $ from "jquery";
 
 import {DomainSpec} from "./model/DomainSpec";
-import {LollipopSpec} from "./model/LollipopSpec";
+import {LollipopPlacement, LollipopSpec} from "./model/LollipopSpec";
 import {MobxCache} from "./model/MobxCache";
 import {Mutation} from "./model/Mutation";
 import {MutationMapperStore} from "./model/MutationMapperStore";
 import {PfamDomain, PfamDomainRange} from "./model/Pfam";
 import {SequenceSpec} from "./model/SequenceSpec";
-import {lollipopLabelText, lollipopLabelTextAnchor} from "./util/LollipopPlotUtils";
+import {
+    calcCountRange,
+    getYAxisMaxInputValue,
+    getYAxisMaxSliderValue,
+    lollipopLabelText,
+    lollipopLabelTextAnchor
+} from "./util/LollipopPlotUtils";
 import {DEFAULT_PROTEIN_IMPACT_TYPE_COLORS, getColorForProteinImpactType} from "./util/MutationUtils";
 import {generatePfamDomainColorMap} from "./util/PfamUtils";
 import {initDefaultTrackVisibility} from "./util/TrackUtils";
@@ -51,6 +57,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
 {
     @observable private mouseInPlot:boolean = true;
     @observable private _yMaxInput:number;
+    @observable private _bottomYMaxInput:number;
     @observable private legendShown:boolean = false;
     @observable private yMaxInputFocused:boolean = false;
     @observable private geneXOffset:number;
@@ -80,15 +87,49 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
         );
     }
 
-    @computed private get lollipops(): LollipopSpec[]
+    @computed
+    protected get groups(): string[] | undefined
     {
-        const mutationsByPosition = this.props.store.mutationsByPosition;
-        const countsByPosition = this.props.store.uniqueMutationCountsByPosition;
+        if (this.props.store.groupedMutationsByPosition.length > 0) {
+            return this.props.store.groupedMutationsByPosition.map(g => g.group);
+        }
+        else {
+            return undefined;
+        }
+    }
 
-        if (Object.keys(mutationsByPosition).length === 0) {
-            return [];
+    @computed
+    protected get lollipops(): LollipopSpec[]
+    {
+        let lollipops: LollipopSpec[] = [];
+
+        // ignore grouped mutations with less than 2 groups
+        // also ignore other groups except first and second
+        if (this.props.store.groupedMutationsByPosition.length > 1) {
+            const groupTop = this.props.store.groupedMutationsByPosition[0].group;
+            const mutationsTop = this.props.store.groupedMutationsByPosition[0].mutations;
+            const countsTop = this.props.store.uniqueGroupedMutationCountsByPosition[0].counts;
+            lollipops = this.getLollipopSpecs(mutationsTop, countsTop, groupTop, LollipopPlacement.TOP);
+
+            const groupBottom = this.props.store.groupedMutationsByPosition[1].group;
+            const mutationsBottom = this.props.store.groupedMutationsByPosition[1].mutations;
+            const countsBottom = this.props.store.uniqueGroupedMutationCountsByPosition[1].counts;
+            lollipops = lollipops.concat(
+                this.getLollipopSpecs(mutationsBottom, countsBottom, groupBottom, LollipopPlacement.BOTTOM));
+        }
+        else if (Object.keys(this.props.store.mutationsByPosition).length > 0) {
+            return this.getLollipopSpecs(this.props.store.mutationsByPosition,
+                this.props.store.uniqueMutationCountsByPosition);
         }
 
+        return lollipops;
+    }
+
+    protected getLollipopSpecs(mutationsByPosition: {[pos: number]: Mutation[]},
+                               countsByPosition: {[pos: number]: number},
+                               group?: string,
+                               placement?: LollipopPlacement): LollipopSpec[]
+    {
         // positionMutations: Mutation[][], in descending order of mutation count
         const positionMutations = Object.keys(mutationsByPosition)
             .map(position => mutationsByPosition[parseInt(position,10)])
@@ -120,7 +161,8 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
             numLabelsToShow = Math.min(numLabelCandidates, maxLabels); // otherwise, we show labels
         }
 
-        const ret:LollipopSpec[] = [];
+        const specs:LollipopSpec[] = [];
+
         for (let i=0; i<positionMutations.length; i++) {
             const mutations = positionMutations[i];
             const codon = mutations[0].proteinPosStart;
@@ -150,8 +192,10 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
             } else {
                 label = undefined;
             }
-            ret.push({
+            specs.push({
                 codon,
+                group,
+                placement,
                 count: mutationCount,
                 tooltip: this.lollipopTooltip(mutations, countsByPosition),
                 color: this.props.getLollipopColor ?
@@ -162,7 +206,8 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                 label
             });
         }
-        return ret;
+
+        return specs;
     }
 
     private mutationAlignerLink(pfamAccession: string): JSX.Element | null {
@@ -293,18 +338,18 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
         return this.props.store.gene.hugoGeneSymbol;
     }
 
-    @computed get countRange(): [number, number] {
-        if (this.lollipops.length === 0) {
-            return [0,0];
-        } else {
-            let max = 5;
-            let min = 1;
-            for (const lollipop of this.lollipops) {
-                max = Math.max(max, lollipop.count);
-                min = Math.min(min, lollipop.count);
-            }
-            return [min, max];
-        }
+    @computed get countRange(): [number, number]
+    {
+        return calcCountRange(
+            this.lollipops.filter(l => l.placement !== LollipopPlacement.BOTTOM)
+        );
+    }
+
+    @computed get bottomCountRange(): [number, number] {
+
+        return calcCountRange(
+            this.lollipops.filter(l => l.placement === LollipopPlacement.BOTTOM)
+        );
     }
 
     @computed get sliderRange() {
@@ -315,15 +360,18 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
         super(props);
 
         this.handlers = {
-            handleYAxisMaxSliderChange: action((event:any)=>{
-                const inputValue:string = (event.target as HTMLInputElement).value;
-                const value = parseInt(inputValue, 10);
-                this._yMaxInput = value < this.countRange[0] ? this.countRange[0] : value;
-            }),
-            handleYAxisMaxChange: action((inputValue:string)=>{
-                const value = parseInt(inputValue, 10);
-                this._yMaxInput = value < this.countRange[0] ? this.countRange[0] : value;
-            }),
+            handleYAxisMaxSliderChange: action(
+                (event:any) => this._yMaxInput = getYAxisMaxSliderValue(event, this.countRange)
+            ),
+            handleYAxisMaxChange: action(
+                (input: string) => this._yMaxInput = getYAxisMaxInputValue(input, this.countRange)
+            ),
+            handleBottomYAxisMaxSliderChange: action(
+                (event:any) => this._bottomYMaxInput= getYAxisMaxSliderValue(event, this.bottomCountRange)
+            ),
+            handleBottomYAxisMaxChange: action(
+                (input: string) => this._bottomYMaxInput = getYAxisMaxInputValue(input, this.bottomCountRange)
+            ),
             onYMaxInputFocused:()=>{
                 this.yMaxInputFocused = true;
             },
@@ -343,11 +391,20 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
         return Math.min(this.countRange[1], this._yMaxInput || this.countRange[1]);
     }
 
+    @computed get bottomYMaxSlider() {
+        // we don't want max slider value to go over the actual max, even if the user input goes over it
+        return Math.min(this.bottomCountRange[1], this._bottomYMaxInput || this.bottomCountRange[1]);
+    }
+
     @computed get yMaxInput() {
         // allow the user input value to go over the actual count rage
         return this._yMaxInput || this.countRange[1];
     }
 
+    @computed get bottomYMaxInput() {
+        // allow the user input value to go over the actual count rage
+        return this._bottomYMaxInput || this.bottomCountRange[1];
+    }
 
     @autobind
     @action
@@ -394,13 +451,18 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                         showDownloadControls={this.props.showDownloadControls}
                         hugoGeneSymbol={this.hugoGeneSymbol}
                         countRange={this.countRange}
+                        bottomCountRange={this.bottomCountRange}
                         onYAxisMaxSliderChange={this.handlers.handleYAxisMaxSliderChange}
                         onYAxisMaxChange={this.handlers.handleYAxisMaxChange}
+                        onBottomYAxisMaxSliderChange={this.handlers.handleBottomYAxisMaxSliderChange}
+                        onBottomYAxisMaxChange={this.handlers.handleBottomYAxisMaxChange}
                         onYMaxInputFocused={this.handlers.onYMaxInputFocused}
                         onYMaxInputBlurred={this.handlers.onYMaxInputBlurred}
                         onToggleLegend={this.handlers.handleToggleLegend}
                         yMaxSlider={this.yMaxSlider}
                         yMaxInput={this.yMaxInput}
+                        bottomYMaxSlider={this.bottomYMaxSlider}
+                        bottomYMaxInput={this.bottomYMaxInput}
                         trackVisibility={this.trackVisibility}
                         tracks={this.props.tracks}
                         trackDataStatus={this.props.trackDataStatus}
@@ -416,11 +478,13 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                         domains={this.domains}
                         dataStore={this.props.store.dataStore}
                         vizWidth={this.props.geneWidth}
-                        vizHeight={130}
+                        vizHeight={200}
                         hugoGeneSymbol={this.hugoGeneSymbol}
                         xMax={this.proteinLength}
                         yMax={this.yMaxInput}
+                        bottomYMax={this.bottomYMaxInput}
                         onXAxisOffset={this.onXAxisOffset}
+                        groups={this.groups}
                     />
                     <TrackPanel
                         store={this.props.store}
