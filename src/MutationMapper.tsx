@@ -3,11 +3,14 @@ import {observer} from "mobx-react";
 import * as React from "react";
 import {TableProps} from "react-table";
 
+import {DefaultPubMedCache} from "./cache/DefaultPubMedCache";
+import FilterResetPanel from "./component/FilterResetPanel";
 import {MobxCache} from "./model/MobxCache";
 import {Mutation} from "./model/Mutation";
 import MutationMapperStore from "./model/MutationMapperStore";
 import DefaultMutationMapperStore from "./store/DefaultMutationMapperStore";
 import {initDefaultTrackVisibility} from "./util/TrackUtils";
+import {getDefaultWindowInstance} from "./util/DefaultWindowInstance";
 import {DataTableColumn} from "./DataTable";
 import DefaultMutationRateSummary, {MutationRate} from "./DefaultMutationRateSummary";
 import DefaultMutationTable from "./DefaultMutationTable";
@@ -19,6 +22,7 @@ export type MutationMapperProps = {
     hugoSymbol?: string;
     data?: Partial<Mutation>[];
     store?: MutationMapperStore;
+    windowWrapper?: {size: {width: number, height: number}};
     trackVisibility?: TrackVisibility;
     tracks?: TrackName[];
     customMutationTableColumns?: DataTableColumn<Mutation>[];
@@ -47,7 +51,6 @@ export type MutationMapperProps = {
 export default class MutationMapper<P extends MutationMapperProps = MutationMapperProps> extends React.Component<P, {}>
 {
     public static defaultProps: Partial<MutationMapperProps> = {
-        // TODO pubMedCache
         showOnlyAnnotatedTranscriptsInDropdown: false,
         showTranscriptDropDown: false,
         filterMutationsBySelectedTranscript: false,
@@ -56,11 +59,18 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
     @observable
     private _trackVisibility: TrackVisibility | undefined;
 
+    @observable
+    protected lollipopPlotGeneX: number | undefined;
+
     @computed
     protected get geneWidth()
     {
-        // TODO return WindowStore.size.width * 0.7 - this.lollipopPlotGeneX;
-        return 666;
+        if (this.lollipopPlotGeneX) {
+            return this.windowWrapper.size.width * 0.7 - this.lollipopPlotGeneX;
+        }
+        else {
+            return 666;
+        }
     }
 
     @computed
@@ -101,6 +111,15 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
             () => (this.props.data || []) as Mutation[]);
     }
 
+    protected get pubMedCache() {
+        return this.props.pubMedCache || new DefaultPubMedCache();
+    }
+
+    @computed
+    protected get windowWrapper(): {size: {width: number, height: number}} {
+        return this.props.windowWrapper ? this.props.windowWrapper! : getDefaultWindowInstance();
+    }
+
     // TODO for this we need to implement data table items label first
     // @computed
     // get multipleMutationInfo(): string {
@@ -125,6 +144,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 oncoKbData={this.store.oncoKbData}
                 oncoKbCancerGenes={this.store.oncoKbCancerGenes}
                 oncoKbEvidenceCache={this.store.oncoKbEvidenceCache}
+                pubMedCache={this.pubMedCache}
             />
         );
     }
@@ -134,7 +154,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
         return (
             <LollipopMutationPlot
                 store={this.store}
-                pubMedCache={this.props.pubMedCache}
+                pubMedCache={this.pubMedCache}
                 geneWidth={this.geneWidth}
                 trackVisibility={this.trackVisibility}
                 tracks={this.props.tracks}
@@ -142,7 +162,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 showLegendToggle={this.props.showPlotLegendToggle}
                 showDownloadControls={this.props.showPlotDownloadControls}
                 trackDataStatus={this.trackDataStatus}
-                onXAxisOffset={this.props.onXAxisOffset}
+                onXAxisOffset={this.onXAxisOffset}
                 onTrackVisibilityChange={this.props.onTrackVisibilityChange}
                 getLollipopColor={this.props.getLollipopColor}
             />
@@ -175,10 +195,29 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
         return this.props.mutationRates ? <DefaultMutationRateSummary rates={this.props.mutationRates!} /> : null;
     }
 
+    protected get isFiltered() {
+        return this.store.dataStore.selectionFilters.length > 0 || this.store.dataStore.dataFilters.length > 0;
+    }
+
     protected get isMutationTableDataLoading()
     {
         // Child classes should override this method
         return false;
+    }
+
+    protected get filterResetPanel(): JSX.Element | null
+    {
+        const dataStore = this.store.dataStore;
+        const tableData = dataStore.sortedFilteredSelectedData.length > 0 ?
+            dataStore.sortedFilteredSelectedData : dataStore.sortedFilteredData;
+        const allData = dataStore.allData;
+
+        return (
+            <FilterResetPanel
+                mutationsShown={`${tableData.length}/${allData.length}`}
+                resetFilters={this.resetFilters}
+            />
+        )
     }
 
     protected get mutationTable(): JSX.Element | null
@@ -224,7 +263,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
     {
         return this.isLoading ? this.loadingIndicator : (
             <div>
-                {/* TODO !this.props.store.dataStore.showingAllData && this.filterResetPanel()*/}
+                {this.isFiltered && this.filterResetPanel}
                 <div style={{ display:'flex' }}>
                     <div className="borderedChart" style={{ marginRight: "1rem" }}>
                         {this.mutationPlot}
@@ -247,5 +286,22 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
     {
         this.store.activeTranscript = transcriptId;
         // TODO this.close3dPanel();
+    }
+
+    @action.bound
+    protected onXAxisOffset(offset: number) {
+        if (this.props.onXAxisOffset) {
+            this.props.onXAxisOffset(offset);
+        }
+        else {
+            this.lollipopPlotGeneX = offset;
+        }
+    }
+
+    @action.bound
+    protected resetFilters() {
+        this.store.dataStore.clearDataFilters();
+        this.store.dataStore.clearSelectionFilters();
+        this.store.dataStore.clearHighlightFilters();
     }
 }
