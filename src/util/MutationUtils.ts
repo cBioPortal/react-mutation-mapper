@@ -84,13 +84,21 @@ export function mutationTypeSort(typeA: CanonicalMutationType, typeB: CanonicalM
     }
 }
 
-export function getColorForProteinImpactType(mutations: Mutation[],
-                                             colors: IProteinImpactTypeColors = DEFAULT_PROTEIN_IMPACT_TYPE_COLORS): string
+export function getColorForProteinImpactType(mutations: Partial<Mutation>[],
+                                             colors: IProteinImpactTypeColors = DEFAULT_PROTEIN_IMPACT_TYPE_COLORS,
+                                             getMutationCount: (mutation: Partial<Mutation>) => number = () => 1): string
 {
     const sortedCanonicalMutationTypes: CanonicalMutationType[] =
-        mutations.map(m => getCanonicalMutationType(m.mutationType || "")).sort(mutationTypeSort);
+        // need to flatten before sorting, since we map a single mutation to an array of elements
+        _.flatten(
+            mutations.map(m =>
+            // create an array of elements for a single mutation, since the mutation count may be different than 1,
+            // this adjusts the weight of a particular mutation with a high count
+            _.fill(Array(getMutationCount(m)), getCanonicalMutationType(m.mutationType || "")))
+        ).sort(mutationTypeSort);
 
     const chosenCanonicalType: CanonicalMutationType | undefined = findFirstMostCommonElt(sortedCanonicalMutationTypes);
+
     if (chosenCanonicalType) {
         const proteinImpactType: ProteinImpactType = getProteinImpactTypeFromCanonical(chosenCanonicalType);
 

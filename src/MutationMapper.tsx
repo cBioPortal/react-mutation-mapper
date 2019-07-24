@@ -25,8 +25,8 @@ export type MutationMapperProps = {
     windowWrapper?: {size: {width: number, height: number}};
     trackVisibility?: TrackVisibility;
     tracks?: TrackName[];
-    customMutationTableColumns?: DataTableColumn<Mutation>[];
-    customMutationTableProps?: Partial<TableProps<Mutation>>;
+    customMutationTableColumns?: DataTableColumn<Partial<Mutation>>[];
+    customMutationTableProps?: Partial<TableProps<Partial<Mutation>>>;
     showPlotYMaxSlider?: boolean;
     showPlotLegendToggle?: boolean;
     showPlotDownloadControls?: boolean;
@@ -41,7 +41,7 @@ export type MutationMapperProps = {
     isoformOverrideSource?: string;
     mainLoadingIndicator?: JSX.Element;
     geneSummaryLoadingIndicator?: JSX.Element;
-    getLollipopColor?: (mutations: Mutation[]) => string;
+    getLollipopColor?: (mutations: Partial<Mutation>[]) => string;
     getMutationCount?: (mutation: Partial<Mutation>) => number;
     onXAxisOffset?: (offset:number) => void;
     onTrackVisibilityChange?: (selectedTrackIds: string[]) => void;
@@ -164,6 +164,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 trackDataStatus={this.trackDataStatus}
                 onXAxisOffset={this.onXAxisOffset}
                 onTrackVisibilityChange={this.props.onTrackVisibilityChange}
+                getMutationCount={this.props.getMutationCount}
                 getLollipopColor={this.props.getLollipopColor}
             />
         );

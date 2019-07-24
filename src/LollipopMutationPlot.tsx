@@ -15,7 +15,7 @@ import {MutationMapperStore} from "./model/MutationMapperStore";
 import {PfamDomain, PfamDomainRange} from "./model/Pfam";
 import {SequenceSpec} from "./model/SequenceSpec";
 import {lollipopLabelText, lollipopLabelTextAnchor} from "./util/LollipopPlotUtils";
-import {getColorForProteinImpactType} from "./util/MutationUtils";
+import {DEFAULT_PROTEIN_IMPACT_TYPE_COLORS, getColorForProteinImpactType} from "./util/MutationUtils";
 import {generatePfamDomainColorMap} from "./util/PfamUtils";
 import {initDefaultTrackVisibility} from "./util/TrackUtils";
 import DefaultLollipopPlotLegend from "./DefaultLollipopPlotLegend";
@@ -29,7 +29,8 @@ const DEFAULT_PROTEIN_LENGTH = 10;
 export type LollipopMutationPlotProps = {
     store: MutationMapperStore;
     pubMedCache?: MobxCache;
-    getLollipopColor?: (mutations: Mutation[]) => string;
+    getLollipopColor?: (mutations: Partial<Mutation>[]) => string;
+    getMutationCount?: (mutation: Partial<Mutation>) => number;
     onXAxisOffset?: (offset:number) => void;
     geneWidth: number;
     trackVisibility?: TrackVisibility;
@@ -154,7 +155,10 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                 count: mutationCount,
                 tooltip: this.lollipopTooltip(mutations, countsByPosition),
                 color: this.props.getLollipopColor ?
-                    this.props.getLollipopColor(mutations): getColorForProteinImpactType(mutations),
+                    this.props.getLollipopColor(mutations):
+                    getColorForProteinImpactType(mutations,
+                        DEFAULT_PROTEIN_IMPACT_TYPE_COLORS,
+                        this.props.getMutationCount),
                 label
             });
         }
