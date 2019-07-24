@@ -11,4 +11,4 @@ export type DataFilter = {
 
 export type CustomFilterApplier = (filter: DataFilter,
                                    datum: any,
-                                   positions: {[position: string]: {position: number}}) => boolean;
+                                   positions?: {[position: string]: {position: number}}) => boolean;

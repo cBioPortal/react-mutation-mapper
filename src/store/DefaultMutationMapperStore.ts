@@ -43,6 +43,10 @@ interface DefaultMutationMapperStoreConfig {
     filterMutationsBySelectedTranscript?: boolean;
     genomeNexusUrl?: string;
     getMutationCount?: (mutation: Partial<Mutation>) => number;
+    dataFilters?: DataFilter[];
+    selectionFilters?: DataFilter[];
+    highlightFilters?: DataFilter[];
+    groupFilters?: {group: string, filter: DataFilter}[];
 }
 
 class DefaultMutationMapperStore implements MutationMapperStore
@@ -102,7 +106,14 @@ class DefaultMutationMapperStore implements MutationMapperStore
 
     @cached
     public get dataStore(): DataStore {
-        return new DefaultMutationMapperDataStore(this.mutations, this.customFilterApplier);
+        return new DefaultMutationMapperDataStore(
+            this.mutations,
+            this.customFilterApplier,
+            this.config.dataFilters,
+            this.config.selectionFilters,
+            this.config.highlightFilters,
+            this.config.groupFilters
+        );
     }
 
     @cached
@@ -141,29 +152,56 @@ class DefaultMutationMapperStore implements MutationMapperStore
     }
 
     @computed
-    public get mutationsByPosition(): {[pos:number]: Mutation[]} {
+    public get mutationsByPosition(): {[pos: number]: Mutation[]} {
         return groupMutationsByProteinStartPos(_.flatten(this.dataStore.sortedFilteredData));
     }
 
     @computed
+    public get groupedMutationsByPosition(): {group: string, mutations: {[pos: number]: Mutation[]}}[]
+    {
+        return this.dataStore.sortedFilteredGroupedData.map(
+            groupedData => ({
+                group: groupedData.group,
+                mutations: groupMutationsByProteinStartPos(_.flatten(groupedData.data))
+            })
+        );
+    }
+
+    @computed
     public get uniqueMutationCountsByPosition(): {[pos: number]: number} {
+        return this.countUniqueMutationsByPosition(this.mutationsByPosition);
+    }
+
+    @computed
+    public get uniqueGroupedMutationCountsByPosition(): {group: string, counts: {[pos: number]: number}}[]
+    {
+        return this.groupedMutationsByPosition.map(
+            groupedMutations => ({
+                group: groupedMutations.group,
+                counts: this.countUniqueMutationsByPosition(groupedMutations.mutations)
+            })
+        );
+    }
+
+    @computed
+    public get transcriptsByTranscriptId(): {[transcriptId:string]: EnsemblTranscript} {
+        return _.keyBy(this.allTranscripts.result, (transcript: EnsemblTranscript) => transcript.transcriptId);
+    }
+
+    public countUniqueMutationsByPosition(mutationsByPosition: {[pos:number]: Mutation[]}): {[pos: number]: number}
+    {
         const map: {[pos: number]: number} = {};
 
-        Object.keys(this.mutationsByPosition).forEach(pos => {
+        Object.keys(mutationsByPosition).forEach(pos => {
             const position = parseInt(pos, 10);
             // for each position multiple mutations for the same patient is counted only once
-            const mutations = this.mutationsByPosition[position];
+            const mutations = mutationsByPosition[position];
             if (mutations) {
                 map[position] = this.countUniqueMutations(mutations);
             }
         });
 
         return map;
-    }
-
-    @computed
-    public get transcriptsByTranscriptId(): {[transcriptId:string]: EnsemblTranscript} {
-        return _.keyBy(this.allTranscripts.result, (transcript: EnsemblTranscript) => transcript.transcriptId);
     }
 
     public countUniqueMutations(mutations: Mutation[]): number
@@ -576,11 +614,11 @@ class DefaultMutationMapperStore implements MutationMapperStore
     @autobind
     protected customFilterApplier(filter: DataFilter,
                                   mutation: Mutation,
-                                  positions: {[position: string]: {position: number}})
+                                  positions?: {[position: string]: {position: number}})
     {
         let pick = true;
 
-        if (filter.position) {
+        if (filter.position && positions) {
             pick = !!positions[mutation.proteinPosStart+""];
         }
 
@@ -609,7 +647,9 @@ class DefaultMutationMapperStore implements MutationMapperStore
         {
             // TODO add a separate function to apply mutation filters
             pick = !filter.mutation
-                .map(f => f.mutationType === undefined || mutation.mutationType === f.mutationType)
+                .map(f =>
+                    (f.mutationType === undefined || mutation.mutationType === f.mutationType) &&
+                    (f.mutationStatus === undefined || mutation.mutationStatus === f.mutationStatus))
                 .includes(false);
         }
 

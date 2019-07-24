@@ -17,6 +17,7 @@ import DefaultMutationTable from "./DefaultMutationTable";
 import GeneSummary from "./GeneSummary";
 import LollipopMutationPlot from "./LollipopMutationPlot";
 import {TrackDataStatus, TrackName, TrackVisibility} from "./TrackSelector";
+import {DataFilter} from "./model/DataFilter";
 
 export type MutationMapperProps = {
     hugoSymbol?: string;
@@ -45,6 +46,11 @@ export type MutationMapperProps = {
     getMutationCount?: (mutation: Partial<Mutation>) => number;
     onXAxisOffset?: (offset:number) => void;
     onTrackVisibilityChange?: (selectedTrackIds: string[]) => void;
+
+    dataFilters?: DataFilter[];
+    selectionFilters?: DataFilter[];
+    highlightFilters?: DataFilter[];
+    groupFilters?: {group: string, filter: DataFilter}[];
 };
 
 @observer
@@ -106,7 +112,11 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 isoformOverrideSource: this.props.isoformOverrideSource,
                 filterMutationsBySelectedTranscript: this.props.filterMutationsBySelectedTranscript,
                 genomeNexusUrl: this.props.genomeNexusUrl,
-                getMutationCount: this.props.getMutationCount
+                getMutationCount: this.props.getMutationCount,
+                dataFilters: this.props.dataFilters,
+                selectionFilters: this.props.selectionFilters,
+                highlightFilters: this.props.highlightFilters,
+                groupFilters: this.props.groupFilters
             },
             () => (this.props.data || []) as Mutation[]);
     }

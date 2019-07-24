@@ -23,8 +23,10 @@ export interface MutationMapperStore {
     pfamDomainData: RemoteData<PfamDomain[] | undefined>;
     allTranscripts: RemoteData<EnsemblTranscript[] | undefined>;
     transcriptsByTranscriptId: {[transcriptId: string]: EnsemblTranscript};
-    mutationsByPosition: {[pos:number]: Mutation[]};
+    mutationsByPosition: {[pos: number]: Mutation[]};
+    groupedMutationsByPosition: {group: string, mutations : {[pos: number]: Mutation[]}}[];
     uniqueMutationCountsByPosition: {[pos: number]: number};
+    uniqueGroupedMutationCountsByPosition: {group: string, counts: {[pos: number]: number}}[];
     ptmDataByProteinPosStart: RemoteData<{[pos: number]: PostTranslationalModification[]} | undefined>;
     ptmDataByTypeAndProteinPosStart: RemoteData<{[type: string] : {[position: number] : PostTranslationalModification[]}} | undefined>;
     indexedHotspotData: RemoteData<IHotspotIndex | undefined>;
