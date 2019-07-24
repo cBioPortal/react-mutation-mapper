@@ -194,6 +194,7 @@ export default class DataTable<T> extends React.Component<DataTableProps<T>, {}>
                         onExpandedChange={this.onExpandedChange}
                         onPageChange={this.resetExpander}
                         onSortedChange={this.resetExpander}
+                        minRows={0}
                         {...this.props.reactTableProps}
                     />
                 </div>
