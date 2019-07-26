@@ -58,6 +58,8 @@ export * from "./util/FilterUtils";
 export * from "./util/MutationAnnotator";
 export {
     MUTATION_TYPE_PRIORITY,
+    genomicLocationString,
+    extractGenomicLocation,
     countMutationsByProteinChange,
     groupMutationsByProteinStartPos,
     mutationTypeSort,
