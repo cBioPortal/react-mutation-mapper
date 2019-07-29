@@ -36,6 +36,7 @@ export type MutationMapperProps = {
     pubMedCache?: MobxCache;
     // TODO annotateMutations?: boolean;
     genomeNexusUrl?: string;
+    oncoKbUrl?: string;
     showTranscriptDropDown?: boolean;
     showOnlyAnnotatedTranscriptsInDropdown?: boolean;
     filterMutationsBySelectedTranscript?: boolean;
@@ -112,6 +113,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 isoformOverrideSource: this.props.isoformOverrideSource,
                 filterMutationsBySelectedTranscript: this.props.filterMutationsBySelectedTranscript,
                 genomeNexusUrl: this.props.genomeNexusUrl,
+                oncoKbUrl: this.props.oncoKbUrl,
                 getMutationCount: this.props.getMutationCount,
                 dataFilters: this.props.dataFilters,
                 selectionFilters: this.props.selectionFilters,

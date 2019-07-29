@@ -3,10 +3,8 @@ import _ from "lodash";
 import {computed, observable} from "mobx";
 import MobxPromise, {cached} from "mobxpromise";
 
-import {remoteData} from "cbioportal-frontend-commons";
-
 // TODO define VariantAnnotation model?
-import {VariantAnnotation} from "../generated/GenomeNexusAPI";
+import {remoteData, VariantAnnotation} from "cbioportal-frontend-commons";
 
 import {AggregatedHotspots, GenomicLocation, Hotspot, IHotspotIndex} from "../model/CancerHotspot";
 import {DataFilter} from "../model/DataFilter";
@@ -42,6 +40,7 @@ interface DefaultMutationMapperStoreConfig {
     isoformOverrideSource?: string;
     filterMutationsBySelectedTranscript?: boolean;
     genomeNexusUrl?: string;
+    oncoKbUrl?: string;
     getMutationCount?: (mutation: Partial<Mutation>) => number;
     dataFilters?: DataFilter[];
     selectionFilters?: DataFilter[];
@@ -147,7 +146,8 @@ class DefaultMutationMapperStore implements MutationMapperStore
     @computed
     public get dataFetcher(): DefaultMutationMapperDataFetcher {
         return new DefaultMutationMapperDataFetcher({
-            genomeNexusUrl: this.config.genomeNexusUrl
+            genomeNexusUrl: this.config.genomeNexusUrl,
+            oncoKbUrl: this.config.oncoKbUrl
         });
     }
 
