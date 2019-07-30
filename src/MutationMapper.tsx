@@ -5,6 +5,8 @@ import {TableProps} from "react-table";
 
 import {DefaultPubMedCache} from "./cache/DefaultPubMedCache";
 import FilterResetPanel from "./component/FilterResetPanel";
+import {DataFilter} from "./model/DataFilter";
+import {ApplyFilterFn, FilterApplier} from "./model/FilterApplier";
 import {MobxCache} from "./model/MobxCache";
 import {Mutation} from "./model/Mutation";
 import MutationMapperStore from "./model/MutationMapperStore";
@@ -17,7 +19,6 @@ import DefaultMutationTable from "./DefaultMutationTable";
 import GeneSummary from "./GeneSummary";
 import LollipopMutationPlot from "./LollipopMutationPlot";
 import {TrackDataStatus, TrackName, TrackVisibility} from "./TrackSelector";
-import {DataFilter} from "./model/DataFilter";
 
 export type MutationMapperProps = {
     hugoSymbol?: string;
@@ -52,6 +53,8 @@ export type MutationMapperProps = {
     selectionFilters?: DataFilter[];
     highlightFilters?: DataFilter[];
     groupFilters?: {group: string, filter: DataFilter}[];
+    filterAppliersOverride?: {[filterType: string]: ApplyFilterFn};
+    filterApplier?: FilterApplier;
 };
 
 @observer
@@ -120,7 +123,10 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 highlightFilters: this.props.highlightFilters,
                 groupFilters: this.props.groupFilters
             },
-            () => (this.props.data || []) as Mutation[]);
+            () => (this.props.data || []) as Mutation[],
+            this.props.filterApplier,
+            this.props.filterAppliersOverride
+        );
     }
 
     protected get pubMedCache() {

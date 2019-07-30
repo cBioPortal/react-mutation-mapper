@@ -6,10 +6,12 @@ import MobxPromise, {cached} from "mobxpromise";
 // TODO define VariantAnnotation model?
 import {remoteData, VariantAnnotation} from "cbioportal-frontend-commons";
 
+import OncoKbEvidenceCache from "../cache/OncoKbEvidenceCache";
 import {AggregatedHotspots, GenomicLocation, Hotspot, IHotspotIndex} from "../model/CancerHotspot";
 import {DataFilter} from "../model/DataFilter";
 import DataStore from "../model/DataStore";
 import {EnsemblTranscript} from "../model/EnsemblTranscript";
+import {ApplyFilterFn, FilterApplier} from "../model/FilterApplier";
 import {Gene} from "../model/Gene";
 import {Mutation} from "../model/Mutation";
 import MutationMapperStore from "../model/MutationMapperStore";
@@ -20,21 +22,19 @@ import {
     defaultHotspotFilter,
     groupCancerHotspotDataByPosition,
     groupHotspotsByMutations,
-    indexHotspotsData,
-    isHotspot
+    indexHotspotsData
 } from "../util/CancerHotspotsUtils";
 import {ONCOKB_DEFAULT_DATA} from "../util/DataFetcherUtils";
 import {getMutationsToTranscriptId} from "../util/MutationAnnotator";
 import {genomicLocationString, groupMutationsByProteinStartPos, uniqueGenomicLocations} from "../util/MutationUtils";
 import {
-    defaultOncoKbFilter,
     defaultOncoKbIndicatorFilter,
     groupOncoKbIndicatorDataByMutations
 } from "../util/OncoKbUtils";
 import {groupPtmDataByPosition, groupPtmDataByTypeAndPosition} from "../util/PtmUtils";
 import {DefaultMutationMapperDataStore} from "./DefaultMutationMapperDataStore";
 import {DefaultMutationMapperDataFetcher} from "./DefaultMutationMapperDataFetcher";
-import OncoKbEvidenceCache from "../cache/OncoKbEvidenceCache";
+import {DefaultMutationMapperFilterApplier} from "./DefaultMutationMapperFilterApplier";
 
 interface DefaultMutationMapperStoreConfig {
     isoformOverrideSource?: string;
@@ -56,9 +56,19 @@ class DefaultMutationMapperStore implements MutationMapperStore
     constructor(
         public gene: Gene,
         protected config: DefaultMutationMapperStoreConfig,
-        protected getMutations: () => Mutation[]
+        protected getMutations: () => Mutation[],
+        protected filterApplier?: FilterApplier,
+        protected filterAppliersOverride?: {[filterType: string]: ApplyFilterFn}
     ) {
-
+        if (!this.filterApplier) {
+            this.filterApplier = new DefaultMutationMapperFilterApplier(
+                this.indexedHotspotData,
+                this.oncoKbData,
+                this.getDefaultTumorType,
+                this.getDefaultEntrezGeneId,
+                this.filterAppliersOverride
+            );
+        }
     }
 
     @computed
@@ -107,7 +117,7 @@ class DefaultMutationMapperStore implements MutationMapperStore
     public get dataStore(): DataStore {
         return new DefaultMutationMapperDataStore(
             this.mutations,
-            this.customFilterApplier,
+            this.filterApplier,
             this.config.dataFilters,
             this.config.selectionFilters,
             this.config.highlightFilters,
@@ -609,51 +619,6 @@ class DefaultMutationMapperStore implements MutationMapperStore
     protected getDefaultEntrezGeneId(mutation: Mutation): number {
         // assuming all mutations in this store is for the same gene
         return this.gene.entrezGeneId || (mutation.gene && mutation.gene.entrezGeneId) || 0;
-    }
-
-    @autobind
-    protected customFilterApplier(filter: DataFilter,
-                                  mutation: Mutation,
-                                  positions?: {[position: string]: {position: number}})
-    {
-        let pick = true;
-
-        if (filter.position && positions) {
-            pick = !!positions[mutation.proteinPosStart+""];
-        }
-
-        if (pick &&
-            filter.hotspot &&
-            this.indexedHotspotData.result)
-        {
-            // TODO for now ignoring the actual filter value and treating as a boolean
-            pick = isHotspot(mutation, this.indexedHotspotData.result, defaultHotspotFilter);
-        }
-
-        if (pick &&
-            filter.oncokb &&
-            this.oncoKbData.result &&
-            !(this.oncoKbData.result instanceof Error))
-        {
-            // TODO for now ignoring the actual filter value and treating as a boolean
-            pick = defaultOncoKbFilter(mutation,
-                this.oncoKbData.result,
-                this.getDefaultTumorType,
-                this.getDefaultEntrezGeneId);
-        }
-
-        if (pick &&
-            filter.mutation)
-        {
-            // TODO add a separate function to apply mutation filters
-            pick = !filter.mutation
-                .map(f =>
-                    (f.mutationType === undefined || mutation.mutationType === f.mutationType) &&
-                    (f.mutationStatus === undefined || mutation.mutationStatus === f.mutationStatus))
-                .includes(false);
-        }
-
-        return pick;
     }
 }
 

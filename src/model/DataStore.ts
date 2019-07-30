@@ -5,6 +5,7 @@ export interface DataStore {
     sortedFilteredData: any[]; // TODO find a better way to define/access this data
     sortedFilteredSelectedData: any[]; // TODO find a better way to define/access this data
     sortedFilteredGroupedData: {group: string, data: any[]}[]; // TODO find a better way to define/access this data
+    setDataFilters: (filters: DataFilter[]) => void;
     setHighlightFilters: (filters: DataFilter[]) => void;
     setSelectionFilters: (filters: DataFilter[]) => void;
     setGroupFilters: (filters:  {group: string, filter: DataFilter}[]) => void;

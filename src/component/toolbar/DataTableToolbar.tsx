@@ -1,20 +1,28 @@
+import _ from "lodash";
 import {observer} from "mobx-react";
 import * as React from "react";
 
 import {ColumnSelector, ColumnSelectorProps, ColumnVisibilityDef} from "../ColumnSelector";
+import {SearchBox} from "./SearchBox";
 
 type DataTableToolbarProps = {
     showColumnVisibility?: boolean;
     visibilityToggle?: (selectedColumnIds: string[]) => void;
     columnVisibility?: ColumnVisibilityDef[];
     columnSelectorProps?: ColumnSelectorProps;
+    showSearchBox?: boolean;
+    onSearch?: (searchText: string) => void;
+    searchDelay?: number;
+    searchPlaceHolder?: string;
 }
 
 @observer
-export default class DataTableToolbar extends React.Component<DataTableToolbarProps, {}>
+export class DataTableToolbar extends React.Component<DataTableToolbarProps, {}>
 {
     public static defaultProps: Partial<DataTableToolbarProps> = {
-        showColumnVisibility: true
+        showColumnVisibility: true,
+        showSearchBox: true,
+        searchDelay: 400
     };
 
     public render()
@@ -22,7 +30,7 @@ export default class DataTableToolbar extends React.Component<DataTableToolbarPr
         return (
             <div
                 className="dataTableMainToolbar"
-                style={{paddingBottom: "0.4rem"}}
+                style={{paddingBottom: "0.4rem", display: "flex"}}
             >
                 {this.props.showColumnVisibility && (
                     <div
@@ -36,8 +44,23 @@ export default class DataTableToolbar extends React.Component<DataTableToolbarPr
                         />
                     </div>
                 )}
+                {this.props.showSearchBox && (
+                    <div
+                        className="small"
+                        style={{width: 200, marginLeft: 5}}
+                    >
+                        <SearchBox
+                            placeholder={this.props.searchPlaceHolder}
+                            onChange={
+                                this.props.onSearch ?
+                                    _.debounce(this.props.onSearch, this.props.searchDelay) : this.props.onSearch
+                            }
+                        />
+                    </div>
+                )}
             </div>
         );
     }
-
 }
+
+export default DataTableToolbar;
