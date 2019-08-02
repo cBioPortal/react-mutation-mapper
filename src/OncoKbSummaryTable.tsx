@@ -12,7 +12,7 @@ import {
 import {defaultSortMethod, defaultStringArraySortMethod} from "./util/ReactTableUtils";
 
 import levelStyles from "./component/oncokb/level.module.scss";
-import styles from "./oncokbSummaryTable.module.scss";
+import {levelIconClassNames} from "./util/OncoKbUtils";
 
 export type OncoKbSummaryTableProps = {
     data: OncoKbSummary[];
@@ -103,8 +103,7 @@ export default class OncoKbSummaryTable extends React.Component<OncoKbSummaryTab
                                 <i
                                     className={
                                         classnames(`${levelStyles["level-icon"]}`,
-                                            `${levelStyles[`level-${level.level}`]}`,
-                                            `${styles["level-icon"]}`)
+                                            levelIconClassNames(level.level))
                                     }
                                     style={{
                                         verticalAlign: "text-bottom",

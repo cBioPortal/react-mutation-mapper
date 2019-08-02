@@ -18,6 +18,7 @@ import collapsibleStyles from './collapsible.module.scss';
 import levelStyles from './level.module.scss';
 import mainStyles from './main.module.scss';
 import tabsStyles from './tabs.module.scss';
+import {levelIconClassNames} from "../../util/OncoKbUtils";
 
 
 type OncoKbCardPropsBase = {
@@ -78,7 +79,7 @@ export default class OncoKbCard extends React.Component<OncoKbCardProps>
         return (
             <li key={level} className={levelStyles["levels-li"]}>
                 <i
-                    className={classnames(levelStyles['level-icon'], levelStyles[`level-${level}`])}
+                    className={levelIconClassNames(level)}
                 />
                 {levelDes}
             </li>
