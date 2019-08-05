@@ -57,6 +57,7 @@ export default class OncoKbTreatmentTable extends React.Component<OncoKbTreatmen
                 >
                     <i
                         className={levelIconClassNames(props.value)}
+                        style={{margin: 'auto'}}
                     />
                 </DefaultTooltip>
 
@@ -67,19 +68,30 @@ export default class OncoKbTreatmentTable extends React.Component<OncoKbTreatmen
             accessor: "variant",
             minWidth: 80,
             sortMethod: (a: string[], b: string[]) => defaultArraySortMethod(a, b),
-            Cell: (props: {value: string[]}) => <span>{mergeAlterations(props.value)}</span>
+            Cell: (props: { value: string[] }) =>
+                <div style={{whiteSpace: "normal", lineHeight: '1rem'}}>
+                    {mergeAlterations(props.value)}
+                </div>
 
         },
         {
             id: "treatment",
             Header: <span>Drug(s)</span>,
-            accessor: "treatment"
+            accessor: "treatment",
+            Cell: (props: {original: OncoKbTreatment}) =>
+                <div style={{whiteSpace: "normal", lineHeight: '1rem'}}>
+                    {props.original.treatment}
+                </div>
         },
         {
             id: "cancerType",
             Header: <span>Level-associated<br/>cancer type(s)</span>,
             accessor: "cancerType",
-            minWidth: 120
+            minWidth: 120,
+            Cell: (props: {original: OncoKbTreatment}) =>
+                <div style={{whiteSpace: "normal", lineHeight: '1rem'}}>
+                    {props.original.cancerType}
+                </div>
         },
         {
             id: "referenceList",

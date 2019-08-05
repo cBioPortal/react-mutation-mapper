@@ -150,13 +150,16 @@ export default class OncoKbCard extends React.Component<OncoKbCardProps>
                                                     }
                                                 </p>
                                                 <p style={{marginBottom: 0}}>{this.props.tumorTypeSummary}</p>
+
+                                                {this.props.treatments!.length > 0 &&
+                                                <div style={{marginTop: 10}}>
+                                                    <OncoKbTreatmentTable
+                                                        pmidData={this.props.pmidData!}
+                                                        treatments={this.props.treatments!}
+                                                    />
+                                                </div>
+                                                }
                                             </div>
-                                            {this.props.treatments!.length > 0 &&
-                                                <OncoKbTreatmentTable
-                                                    pmidData={this.props.pmidData!}
-                                                    treatments={this.props.treatments!}
-                                                />
-                                            }
                                         </div>
                                     }
                                     {this.activeTab === "mutationEffect" &&
