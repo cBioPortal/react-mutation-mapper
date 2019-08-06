@@ -123,7 +123,7 @@ export function extractGenomicLocation(mutation: Partial<Mutation>)
         mutation.chromosome ||
         // TODO workaround for cbioportal API mutation type,
         //  we should either remove this condition or add a custom getChromosome(mutation: Mutation) function
-        (mutation.gene && (mutation as any).gene.chromosome)
+        ((mutation.gene && (mutation as any).gene.chromosome) || (mutation as any).chr)
     );
 
     if (chromosome &&
