@@ -101,10 +101,7 @@ export default class OncoKbSummaryTable extends React.Component<OncoKbSummaryTab
                                 }}
                             >
                                 <i
-                                    className={
-                                        classnames(`${levelStyles["level-icon"]}`,
-                                            levelIconClassNames(level.level))
-                                    }
+                                    className={levelIconClassNames(level.level)}
                                     style={{
                                         verticalAlign: "text-bottom",
                                         display: "inline-block"
