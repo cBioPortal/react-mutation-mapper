@@ -10,8 +10,6 @@ import {
 } from "cbioportal-frontend-commons";
 
 import {defaultSortMethod, defaultStringArraySortMethod} from "./util/ReactTableUtils";
-
-import levelStyles from "./component/oncokb/level.module.scss";
 import {levelIconClassNames} from "./util/OncoKbUtils";
 
 export type OncoKbSummaryTableProps = {
