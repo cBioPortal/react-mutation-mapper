@@ -107,14 +107,13 @@ export default class OncoKbSummaryTable extends React.Component<OncoKbSummaryTab
                                         display: "inline-block"
                                     }}
                                 />
-                                <span style={{verticalAlign: "text-top"}}>: </span>
+                                <span>: </span>
                                 <EllipsisTextTooltip
                                     text={level.tumorTypes.join(", ")}
                                     style={{
                                         overflow: "hidden",
                                         whiteSpace: "nowrap",
                                         textOverflow: "ellipsis",
-                                        verticalAlign: "text-top"
                                     }}
                                 />
                             </div>
