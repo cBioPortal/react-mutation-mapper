@@ -11,7 +11,7 @@ import * as React from 'react';
 import ReactTable, {Column, RowInfo, TableProps} from "react-table";
 
 import {ColumnSelectorProps, ColumnVisibilityDef} from "./component/ColumnSelector";
-import DataTableToolbar from "./component/toolbar/DataTableToolbar";
+import {DataTableToolbar} from "./component/toolbar/DataTableToolbar";
 import {DataFilter} from "./model/DataFilter";
 import {DataStore} from "./model/DataStore";
 import {RemoteData} from "./model/RemoteData";
@@ -21,6 +21,7 @@ import './defaultDataTable.scss';
 export type DataTableColumn<T> = Column<T> & {
     name?: string;
     togglable? : boolean;
+    searchable?: boolean;
 }
 
 export type DataTableProps<T> =
@@ -40,6 +41,9 @@ export type DataTableProps<T> =
     highlightColorDark?: string;
 
     showColumnVisibility?: boolean;
+    showSearchBox?: boolean;
+    onSearch?: (input: string, visibleSearchableColumns: DataTableColumn<T>[]) => void;
+    searchDelay?: number;
     columnVisibility?: {[columnId: string]: boolean};
     columnSelectorProps?: ColumnSelectorProps;
 };
@@ -96,7 +100,7 @@ export default class DataTable<T> extends React.Component<DataTableProps<T>, {}>
     }
 
     @computed
-    get columns(): Column[] {
+    get columns(): DataTableColumn<T>[] {
         return (this.props.columns || []).map(
             c => ({...c, show: c.id ? this.columnVisibility[c.id] : (c.expander || c.show)})
         );
@@ -177,6 +181,10 @@ export default class DataTable<T> extends React.Component<DataTableProps<T>, {}>
             <div className='cbioportal-frontend'>
                 <DataTableToolbar
                     visibilityToggle={this.onVisibilityToggle}
+                    showSearchBox={this.props.showSearchBox}
+                    onSearch={this.onSearch}
+                    searchDelay={this.props.searchDelay}
+                    showColumnVisibility={this.props.showColumnVisibility}
                     columnVisibility={this.columnVisibilityDef}
                     columnSelectorProps={this.props.columnSelectorProps}
                 />
@@ -230,6 +238,14 @@ export default class DataTable<T> extends React.Component<DataTableProps<T>, {}>
                 background: state && row && this.getRowBackground(row)
             }
         };
+    }
+
+    @action.bound
+    protected onSearch(searchText: string)
+    {
+        if (this.props.onSearch) {
+            this.props.onSearch(searchText, this.columns.filter(c => c.searchable && c.show));
+        }
     }
 
     @action.bound

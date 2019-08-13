@@ -4,6 +4,9 @@ export {
     sortValue as hotspotAnnotationSortValue
 } from "./component/column/HotspotAnnotation";
 
+export {default as DropdownSelector, DropdownSelectorProps} from "./component/filter/DropdownSelector";
+export {default as ProteinImpactTypeSelector} from "./component/filter/ProteinImpactTypeSelector";
+
 export {
     default as OncoKB,
     sortValue as oncoKbAnnotationSortValue,
@@ -40,17 +43,24 @@ export {
     TrackVisibility
 } from "./TrackSelector";
 
+export {CancerTypeFilter} from "./filter/CancerTypeFilter";
+export {HotspotFilter} from "./filter/HotspotFilter";
+export {MutationFilter} from "./filter/MutationFilter";
+export {OncoKbFilter} from "./filter/OncoKbFilter";
+export {PositionFilter} from "./filter/PositionFilter";
+export {ProteinImpactTypeFilter} from "./filter/ProteinImpactTypeFilter";
+
 export {IHotspotIndex} from "./model/CancerHotspot";
-export {CustomFilterApplier, DataFilter} from "./model/DataFilter";
+export {DataFilter, DataFilterType} from "./model/DataFilter";
 export {DataStore} from "./model/DataStore";
 export {DomainSpec} from "./model/DomainSpec";
+export {ApplyFilterFn, FilterApplier} from "./model/FilterApplier";
 export {IProteinImpactTypeColors} from "./model/ProteinImpact";
 export {LollipopSpec} from "./model/LollipopSpec";
 export {Mutation} from "./model/Mutation";
+export {MutationMapperStore} from "./model/MutationMapperStore";
 export {RemoteData} from "./model/RemoteData";
 export {SequenceSpec} from "./model/SequenceSpec";
-export {HotspotFilter} from "./model/HotspotFilter";
-export {OncoKbFilter} from "./model/OncoKbFilter";
 
 export * from "./util/CancerHotspotsUtils";
 export * from "./util/DataFetcherUtils";
@@ -73,4 +83,5 @@ export * from "./util/TrackUtils";
 
 export {default as DefaultMutationMapperDataFetcher} from "./store/DefaultMutationMapperDataFetcher";
 export {default as DefaultMutationMapperDataStore} from "./store/DefaultMutationMapperDataStore";
+export {default as DefaultMutationMapperFilterApplier} from "./store/DefaultMutationMapperFilterApplier";
 export {default as DefaultMutationMapperStore} from "./store/DefaultMutationMapperStore";

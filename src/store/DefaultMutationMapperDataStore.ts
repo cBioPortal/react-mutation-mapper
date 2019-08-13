@@ -1,10 +1,11 @@
 import _ from "lodash";
 import {action, computed, observable} from "mobx";
 
-import {CustomFilterApplier, DataFilter} from "../model/DataFilter";
+import {DataFilter, DataFilterType} from "../model/DataFilter";
 import DataStore from "../model/DataStore";
+import {FilterApplier} from "../model/FilterApplier";
 import {Mutation} from "../model/Mutation";
-import {findAllUniquePositions} from "../util/FilterUtils";
+import {indexPositions} from "../util/FilterUtils";
 
 export class DefaultMutationMapperDataStore implements DataStore
 {
@@ -18,17 +19,17 @@ export class DefaultMutationMapperDataStore implements DataStore
 
     // this custom filter applier allows us to interpret selection and highlight filters in a customized way,
     // by default only position filters are taken into account
-    protected applyCustomFilter: CustomFilterApplier | undefined;
+    protected customFilterApplier: FilterApplier | undefined;
 
     constructor(data: Array<Mutation | Mutation[]>,
-                applyCustomFilter?: CustomFilterApplier,
+                customFilterApplier?: FilterApplier,
                 dataFilters: DataFilter[] = [],
                 selectionFilters: DataFilter[] = [],
                 highlightFilters: DataFilter[] = [],
                 groupFilters: {group: string, filter: DataFilter}[] = [])
     {
         this.data = data;
-        this.applyCustomFilter = applyCustomFilter;
+        this.customFilterApplier = customFilterApplier;
 
         this.dataFilters = dataFilters;
         this.selectionFilters = selectionFilters;
@@ -77,12 +78,12 @@ export class DefaultMutationMapperDataStore implements DataStore
 
     @computed
     public get selectedPositions() {
-        return _.keyBy(findAllUniquePositions(this.selectionFilters).map(p => ({position: p})), 'position');
+        return indexPositions(this.selectionFilters);
     }
 
     @computed
     public get highlightedPositions() {
-        return _.keyBy(findAllUniquePositions(this.highlightFilters).map(p => ({position: p})), 'position');
+        return indexPositions(this.highlightFilters);
     }
 
     @action
@@ -104,6 +105,11 @@ export class DefaultMutationMapperDataStore implements DataStore
         if (this.dataFilters.length > 0) {
             this.dataFilters = [];
         }
+    }
+
+    @action
+    public setDataFilters(filters: DataFilter[]) {
+        this.dataFilters = filters;
     }
 
     @action
@@ -144,7 +150,7 @@ export class DefaultMutationMapperDataStore implements DataStore
         return (
             this.selectionFilters.length > 0 &&
             !this.selectionFilters
-                .map(dataFilter => this.applyFilter(dataFilter, mutation, this.selectedPositions))
+                .map(dataFilter => this.applyFilter(dataFilter, mutation))
                 .includes(false)
         );
     }
@@ -154,22 +160,20 @@ export class DefaultMutationMapperDataStore implements DataStore
         return (
             this.highlightFilters.length > 0 &&
             !this.highlightFilters
-                .map(dataFilter => this.applyFilter(dataFilter, mutation, this.highlightedPositions))
+                .map(dataFilter => this.applyFilter(dataFilter, mutation))
                 .includes(false)
         );
     }
 
-    public applyFilter(filter: DataFilter,
-                       mutation: Mutation,
-                       positions?: {[position: string]: {position: number}}): boolean
+    public applyFilter(filter: DataFilter, mutation: Mutation): boolean
     {
-        if (this.applyCustomFilter) {
+        if (this.customFilterApplier) {
             // let the custom filter applier decide how to apply the given filter
-            return this.applyCustomFilter(filter, mutation, positions);
+            return this.customFilterApplier.applyFilter(filter, mutation);
         }
         else {
             // by default only filter by position
-            return !positions || !!positions[mutation.proteinPosStart+""];
+            return filter.type !== DataFilterType.POSITION || filter.values.includes(mutation.proteinPosStart);
         }
     }
 }

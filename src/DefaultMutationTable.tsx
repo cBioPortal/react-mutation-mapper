@@ -1,4 +1,4 @@
-import {computed} from "mobx";
+import {action, computed} from "mobx";
 import {observer} from "mobx-react";
 import * as React from "react";
 import {Column} from "react-table";
@@ -8,13 +8,16 @@ import ColumnHeader from "./component/column/ColumnHeader";
 import MutationStatus from "./component/column/MutationStatus";
 import MutationType from "./component/column/MutationType";
 import ProteinChange, {proteinChangeSortMethod} from "./component/column/ProteinChange";
+import {MutationFilterValue} from "./filter/MutationFilter";
 import {IHotspotIndex} from "./model/CancerHotspot";
+import {DataFilterType} from "./model/DataFilter";
 import {MobxCache} from "./model/MobxCache";
 import {Mutation} from "./model/Mutation";
 import {CancerGene, IOncoKbData} from "./model/OncoKb";
 import {RemoteData} from "./model/RemoteData";
 import {SimpleCache} from "./model/SimpleCache";
-import DataTable, {DataTableProps, getInitialColumnDataStatus} from "./DataTable";
+import {findNonTextInputFilters, TEXT_INPUT_FILTER_ID} from "./util/FilterUtils";
+import DataTable, {DataTableColumn, DataTableProps, getInitialColumnDataStatus} from "./DataTable";
 
 export type DefaultMutationTableProps = {
     hotspotData?: RemoteData<IHotspotIndex | undefined>;
@@ -136,6 +139,7 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                 id: MutationColumn.PROTEIN_CHANGE,
                 name: MutationColumnName.PROTEIN_CHANGE,
                 accessor: MutationColumn.PROTEIN_CHANGE,
+                searchable: true,
                 Cell: (column: any) => <ProteinChange mutation={column.original} />,
                 Header: HEADERS[MutationColumn.PROTEIN_CHANGE],
                 sortMethod: proteinChangeSortMethod
@@ -162,6 +166,7 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                 id: MutationColumn.MUTATION_TYPE,
                 name: MutationColumnName.MUTATION_TYPE,
                 accessor: MutationColumn.MUTATION_TYPE,
+                searchable: true,
                 Cell: (column: any) => <MutationType mutation={column.original} />,
                 Header: HEADERS[MutationColumn.MUTATION_TYPE]
             },
@@ -169,6 +174,7 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                 id: MutationColumn.MUTATION_STATUS,
                 name: MutationColumnName.MUTATION_STATUS,
                 accessor: MutationColumn.MUTATION_STATUS,
+                searchable: true,
                 Cell: (column: any) => <MutationStatus mutation={column.original} />,
                 Header: HEADERS[MutationColumn.MUTATION_STATUS]
             },
@@ -176,6 +182,7 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                 id: MutationColumn.CHROMOSOME,
                 name: MutationColumnName.CHROMOSOME,
                 accessor: MutationColumn.CHROMOSOME,
+                searchable: true,
                 Header: HEADERS[MutationColumn.CHROMOSOME],
                 show: false
             },
@@ -183,6 +190,7 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                 id: MutationColumn.START_POSITION,
                 name: MutationColumnName.START_POSITION,
                 accessor: MutationColumn.START_POSITION,
+                searchable: true,
                 Header: HEADERS[MutationColumn.START_POSITION],
                 show: false
             },
@@ -190,6 +198,7 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                 id: MutationColumn.END_POSITION,
                 name: MutationColumnName.END_POSITION,
                 accessor: MutationColumn.END_POSITION,
+                searchable: true,
                 Header: HEADERS[MutationColumn.END_POSITION],
                 show: false
             },
@@ -197,6 +206,7 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                 id: MutationColumn.REFERENCE_ALLELE,
                 name: MutationColumnName.REFERENCE_ALLELE,
                 accessor: MutationColumn.REFERENCE_ALLELE,
+                searchable: true,
                 Header: HEADERS[MutationColumn.REFERENCE_ALLELE],
                 show: false
             },
@@ -204,6 +214,7 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                 id: MutationColumn.VARIANT_ALLELE,
                 name: MutationColumnName.VARIANT_ALLELE,
                 accessor: MutationColumn.VARIANT_ALLELE,
+                searchable: true,
                 Header: HEADERS[MutationColumn.VARIANT_ALLELE],
                 show: false
             }
@@ -216,7 +227,39 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                 {...this.props}
                 columns={this.columns}
                 initialSortColumnData={this.initialSortColumnData}
+                onSearch={this.onSearch}
             />
         );
+    }
+
+    @action.bound
+    protected onSearch(searchText: string, visibleSearchableColumns: DataTableColumn<Mutation>[])
+    {
+        if (this.props.dataStore)
+        {
+            // all other filters except current text input filter
+            const otherFilters = findNonTextInputFilters(this.props.dataStore.dataFilters);
+
+            let dataFilterValues: MutationFilterValue[] = [];
+
+            if(searchText.length > 0)
+            {
+                dataFilterValues = visibleSearchableColumns.map(
+                    c => ({[c.id!]: searchText} as MutationFilterValue));
+
+                const textInputFilter = {
+                    id: TEXT_INPUT_FILTER_ID,
+                    type: DataFilterType.MUTATION,
+                    values: dataFilterValues
+                };
+
+                // replace current text input filter with the new one
+                this.props.dataStore.setDataFilters([...otherFilters, textInputFilter]);
+            }
+            else {
+                // if no text input remove text input filter (set data filters to all other filters except input)
+                this.props.dataStore.setDataFilters(otherFilters);
+            }
+        }
     }
 }
