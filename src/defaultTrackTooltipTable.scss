@@ -1,6 +1,7 @@
 .default-track-tooltip-table {
-    .rt-tbody {
-        line-height: 0.7rem;
+
+    .rt-table .rt-tbody .rt-td {
+        padding: 4px 5px
     }
 
     .-pagination {
