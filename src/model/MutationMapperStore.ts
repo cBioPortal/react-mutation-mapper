@@ -1,5 +1,5 @@
 // TODO do not use generated models
-import {VariantAnnotation} from "cbioportal-frontend-commons";
+import {MyVariantInfo, VariantAnnotation} from "cbioportal-frontend-commons";
 
 import {Hotspot, IHotspotIndex} from "./CancerHotspot";
 import DataStore from "./DataStore";
@@ -36,6 +36,7 @@ export interface MutationMapperStore {
     oncoKbDataByPosition: {[pos: number]: IndicatorQueryResp[]};
     oncoKbEvidenceCache?: SimpleCache;
     indexedVariantAnnotations: RemoteData<{[genomicLocation: string]: VariantAnnotation} | undefined>;
+    indexedMyVariantInfoAnnotations?: RemoteData<{[genomicLocation: string]: MyVariantInfo} | undefined>;
     transcriptsWithAnnotations: RemoteData<string[] | undefined>;
     transcriptsWithProteinLength: RemoteData<string[] | undefined>;
     mutationsByTranscriptId: {[transcriptId:string]: Mutation[]};
