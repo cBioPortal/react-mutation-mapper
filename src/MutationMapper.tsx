@@ -42,6 +42,7 @@ export type MutationMapperProps = {
     showOnlyAnnotatedTranscriptsInDropdown?: boolean;
     filterMutationsBySelectedTranscript?: boolean;
     isoformOverrideSource?: string;
+    annotationFields?: string[];
     mainLoadingIndicator?: JSX.Element;
     geneSummaryLoadingIndicator?: JSX.Element;
     getLollipopColor?: (mutations: Partial<Mutation>[]) => string;
@@ -113,6 +114,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 hugoGeneSymbol: this.props.hugoSymbol ? this.props.hugoSymbol! : ""
             },
             {
+                annotationFields: this.props.annotationFields,
                 isoformOverrideSource: this.props.isoformOverrideSource,
                 filterMutationsBySelectedTranscript: this.props.filterMutationsBySelectedTranscript,
                 genomeNexusUrl: this.props.genomeNexusUrl,
@@ -162,6 +164,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 oncoKbData={this.store.oncoKbData}
                 oncoKbCancerGenes={this.store.oncoKbCancerGenes}
                 oncoKbEvidenceCache={this.store.oncoKbEvidenceCache}
+                indexedMyVariantInfoAnnotations={this.store.indexedMyVariantInfoAnnotations}
                 pubMedCache={this.pubMedCache}
             />
         );

@@ -1,10 +1,8 @@
 import autobind from "autobind-decorator";
+import {MyVariantInfo, remoteData, VariantAnnotation} from "cbioportal-frontend-commons";
 import _ from "lodash";
 import {computed, observable} from "mobx";
 import MobxPromise, {cached} from "mobxpromise";
-
-// TODO define VariantAnnotation model?
-import {remoteData, VariantAnnotation} from "cbioportal-frontend-commons";
 
 import OncoKbEvidenceCache from "../cache/OncoKbEvidenceCache";
 import {AggregatedHotspots, GenomicLocation, Hotspot, IHotspotIndex} from "../model/CancerHotspot";
@@ -37,6 +35,7 @@ import {DefaultMutationMapperDataFetcher} from "./DefaultMutationMapperDataFetch
 import {DefaultMutationMapperFilterApplier} from "./DefaultMutationMapperFilterApplier";
 
 interface DefaultMutationMapperStoreConfig {
+    annotationFields?: string[];
     isoformOverrideSource?: string;
     filterMutationsBySelectedTranscript?: boolean;
     genomeNexusUrl?: string;
@@ -111,6 +110,11 @@ class DefaultMutationMapperStore implements MutationMapperStore
     @computed
     public get isoformOverrideSource(): string {
         return this.config.isoformOverrideSource || "uniprot";
+    }
+
+    @computed
+    public get annotationFields(): string[] {
+        return _.uniq(["annotation_summary", "hotspots"].concat(this.config.annotationFields || []));
     }
 
     @cached
@@ -585,7 +589,20 @@ class DefaultMutationMapperStore implements MutationMapperStore
     readonly indexedVariantAnnotations: MobxPromise<{[genomicLocation: string]: VariantAnnotation} | undefined> = remoteData({
         invoke: async () => this.getMutations() ?
             await this.dataFetcher.fetchVariantAnnotationsIndexedByGenomicLocation(
-                this.getMutations(), ["annotation_summary", "hotspots"], this.isoformOverrideSource) :
+                this.getMutations(), this.annotationFields, this.isoformOverrideSource) :
+            undefined,
+        onError: () => {
+            // fail silently, leave the error handling responsibility to the data consumer
+        }
+    }, undefined);
+
+    readonly indexedMyVariantInfoAnnotations: MobxPromise<{[genomicLocation: string]: MyVariantInfo} | undefined> = remoteData({
+        await: () => [
+            this.mutationData
+        ],
+        invoke: async () => this.getMutations() ?
+            await this.dataFetcher.fetchMyVariantInfoAnnotationsIndexedByGenomicLocation(
+                this.getMutations(), this.isoformOverrideSource) :
             undefined,
         onError: () => {
             // fail silently, leave the error handling responsibility to the data consumer

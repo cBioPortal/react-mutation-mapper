@@ -3,6 +3,9 @@ export {
     default as HotspotAnnotation,
     sortValue as hotspotAnnotationSortValue
 } from "./component/column/HotspotAnnotation";
+export {
+    sortValue as gnomadSortValue
+} from "./component/column/Gnomad";
 
 export {default as DropdownSelector, DropdownSelectorProps} from "./component/filter/DropdownSelector";
 export {default as ProteinImpactTypeSelector} from "./component/filter/ProteinImpactTypeSelector";
@@ -20,6 +23,9 @@ export {default as OncoKbTooltip} from "./component/oncokb/OncoKbTooltip";
 export {default as ReferenceList} from "./component/oncokb/ReferenceList";
 export {default as RefComponent} from "./component/oncokb/RefComponent";
 export {default as SummaryWithRefs} from "./component/oncokb/SummaryWithRefs";
+
+export {default as GnomadFrequency} from "./component/gnomad/GnomadFrequency";
+export {default as GnomadFrequencyTable} from "./component/gnomad/GnomadFrequencyTable";
 
 export * from "./component/ColumnSelector";
 export * from "./component/FilterResetPanel";

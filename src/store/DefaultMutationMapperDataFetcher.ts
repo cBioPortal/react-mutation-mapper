@@ -30,6 +30,7 @@ import {
     initOncoKbClient,
     ONCOKB_DEFAULT_DATA
 } from "../util/DataFetcherUtils";
+import {getMyVariantInfoAnnotationsFromIndexedVariantAnnotations} from "../util/VariantAnnotationUtils";
 import {uniqueGenomicLocations} from "../util/MutationUtils";
 
 export interface MutationMapperDataFetcherConfig {
@@ -95,9 +96,19 @@ export class DefaultMutationMapperDataFetcher
     {
         return await fetchVariantAnnotationsIndexedByGenomicLocation(mutations, fields, isoformOverrideSource, client);
     }
+
+    public async fetchMyVariantInfoAnnotationsIndexedByGenomicLocation(mutations: Partial<Mutation>[],
+                                                                       isoformOverrideSource: string = "uniprot",
+                                                                       client: GenomeNexusAPI = this.genomeNexusClient)
+    {
+        const indexedVariantAnnotations = await fetchVariantAnnotationsIndexedByGenomicLocation(
+            mutations, ["my_variant_info"], isoformOverrideSource, client);
+
+        return getMyVariantInfoAnnotationsFromIndexedVariantAnnotations(indexedVariantAnnotations);
+    }
+
     /*
-     * Gets the canonical transcript. If there is none pick the transcript with max
-     * length.
+     * Gets the canonical transcript. If there is none pick the transcript with max length.
      */
     public async fetchCanonicalTranscriptWithFallback(hugoSymbol:string,
                                                       isoformOverrideSource: string,

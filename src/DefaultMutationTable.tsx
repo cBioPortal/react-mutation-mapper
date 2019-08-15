@@ -1,3 +1,5 @@
+import {MyVariantInfo} from "cbioportal-frontend-commons";
+import _ from "lodash";
 import {action, computed} from "mobx";
 import {observer} from "mobx-react";
 import * as React from "react";
@@ -5,6 +7,10 @@ import {Column} from "react-table";
 
 import Annotation, {annotationSortMethod, getAnnotationData} from "./component/column/Annotation";
 import ColumnHeader from "./component/column/ColumnHeader";
+import Gnomad, {
+    getMyVariantInfoData,
+    gnomadSortMethod
+} from "./component/column/Gnomad";
 import MutationStatus from "./component/column/MutationStatus";
 import MutationType from "./component/column/MutationType";
 import ProteinChange, {proteinChangeSortMethod} from "./component/column/ProteinChange";
@@ -17,12 +23,14 @@ import {CancerGene, IOncoKbData} from "./model/OncoKb";
 import {RemoteData} from "./model/RemoteData";
 import {SimpleCache} from "./model/SimpleCache";
 import {findNonTextInputFilters, TEXT_INPUT_FILTER_ID} from "./util/FilterUtils";
-import DataTable, {DataTableColumn, DataTableProps, getInitialColumnDataStatus} from "./DataTable";
+import {getRemoteDataGroupStatus} from "./util/RemoteDataUtils";
+import DataTable, {DataTableColumn, DataTableProps} from "./DataTable";
 
 export type DefaultMutationTableProps = {
     hotspotData?: RemoteData<IHotspotIndex | undefined>;
     oncoKbData?: RemoteData<IOncoKbData | Error | undefined>;
     oncoKbCancerGenes?: RemoteData<CancerGene[] | Error | undefined>;
+    indexedMyVariantInfoAnnotations?: RemoteData<{[genomicLocation: string]: MyVariantInfo} | undefined>;
     oncoKbEvidenceCache?: SimpleCache;
     pubMedCache?: MobxCache;
     columns?: Column<Partial<Mutation>>[];
@@ -38,7 +46,8 @@ export enum MutationColumn {
     START_POSITION = "startPosition",
     END_POSITION = "endPosition",
     REFERENCE_ALLELE = "referenceAllele",
-    VARIANT_ALLELE = "variantAllele"
+    VARIANT_ALLELE = "variantAllele",
+    GNOMAD = "gnomad"
 }
 
 export enum MutationColumnName {
@@ -50,7 +59,8 @@ export enum MutationColumnName {
     START_POSITION = "Start Pos",
     END_POSITION = "End Pos",
     REFERENCE_ALLELE = "Ref",
-    VARIANT_ALLELE = "Var"
+    VARIANT_ALLELE = "Var",
+    GNOMAD = "gnomAD"
 }
 
 const HEADERS = {
@@ -76,10 +86,28 @@ const HEADERS = {
         <ColumnHeader headerContent={<span>{MutationColumnName.END_POSITION}</span>} />
     ),
     [MutationColumn.REFERENCE_ALLELE]: (
-        <ColumnHeader headerContent={<span>{MutationColumnName.REFERENCE_ALLELE}</span>} overlay={<span>Reference Allele</span>} />
+        <ColumnHeader
+            headerContent={<span>{MutationColumnName.REFERENCE_ALLELE}</span>}
+            overlay={<span>Reference Allele</span>}
+        />
     ),
     [MutationColumn.VARIANT_ALLELE]: (
-        <ColumnHeader headerContent={<span>{MutationColumnName.VARIANT_ALLELE}</span>} overlay={<span>Variant Allele</span>} />
+        <ColumnHeader
+            headerContent={<span>{MutationColumnName.VARIANT_ALLELE}</span>}
+            overlay={<span>Variant Allele</span>}
+        />
+    ),
+    [MutationColumn.GNOMAD]: (
+        <ColumnHeader
+            headerContent={<span>{MutationColumnName.GNOMAD} <i className="fa fa-info-circle" /></span>}
+            overlay={
+                <span>
+                    <a href="https://gnomad.broadinstitute.org/" target="_blank">gnomAD</a> population allele frequencies.
+                    Overall population allele frequency is shown.
+                    Hover over a frequency to see the frequency for each specific population.
+                </span>
+            }
+        />
     ),
 };
 
@@ -95,16 +123,31 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
     };
 
     @computed
-    get initialColumnDataStatus() {
-        return getInitialColumnDataStatus(this.props.initialSortColumnData);
+    get annotationColumnData() {
+        return [
+            this.props.oncoKbCancerGenes,
+            this.props.hotspotData,
+            this.props.oncoKbData
+        ];
     }
 
-    // TODO generalize this for all columns
+    @computed
+    get annotationColumnDataStatus() {
+        return getRemoteDataGroupStatus(_.compact(this.annotationColumnData));
+    }
+
+    @computed
+    get gnomadColumnDataStatus() {
+        return this.props.indexedMyVariantInfoAnnotations ?
+            this.props.indexedMyVariantInfoAnnotations.status : "complete";
+    }
+
     @computed
     get annotationColumnAccessor() {
-        return (mutation: Mutation) =>
-            this.props.initialSortColumn! === MutationColumn.ANNOTATION && this.initialColumnDataStatus === "pending" ?
-                undefined : getAnnotationData(
+        return this.annotationColumnDataStatus === "pending" ?
+            () => undefined:
+            (mutation: Mutation) =>
+                getAnnotationData(
                     mutation,
                     this.props.oncoKbCancerGenes,
                     this.props.hotspotData,
@@ -113,12 +156,15 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
     }
 
     @computed
+    get gnomadColumnAccessor() {
+        return this.gnomadColumnDataStatus === "pending" ?
+            () => undefined:
+            (mutation: Mutation) => getMyVariantInfoData(mutation, this.props.indexedMyVariantInfoAnnotations)
+    }
+
+    @computed
     get initialSortColumnData() {
-        return this.props.initialSortColumnData || [
-            this.props.oncoKbCancerGenes,
-            this.props.hotspotData,
-            this.props.oncoKbData
-        ];
+        return this.props.initialSortColumnData || this.annotationColumnData;
     }
 
     @computed
@@ -217,6 +263,18 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                 searchable: true,
                 Header: HEADERS[MutationColumn.VARIANT_ALLELE],
                 show: false
+            },
+            {
+                id: MutationColumn.GNOMAD,
+                name: MutationColumnName.GNOMAD,
+                accessor: this.gnomadColumnAccessor,
+                Cell: (column: any) =>
+                    <Gnomad
+                        mutation={column.original}
+                        indexedMyVariantInfoAnnotations={this.props.indexedMyVariantInfoAnnotations}
+                    />,
+                Header: HEADERS[MutationColumn.GNOMAD],
+                sortMethod: gnomadSortMethod
             }
         ];
     }
