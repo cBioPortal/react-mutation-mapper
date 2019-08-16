@@ -9,7 +9,7 @@ import {DataFilter} from "../../model/DataFilter";
 export type DropdownSelectorProps = {
     name?: string;
     placeholder?: string;
-    onSelect?: (selectedOptionIds: string[]) => void;
+    onSelect?: (selectedOptionIds: string[], allValuesSelected?: boolean) => void;
     showControls?: boolean;
     filter?: DataFilter<string>;
     options?: {label?: string | JSX.Element, value: string}[];
@@ -19,12 +19,17 @@ export type DropdownSelectorProps = {
 export class DropdownSelector extends React.Component<DropdownSelectorProps, {}>
 {
     @computed
+    public get allValues() {
+        return (this.props.options || []).map(option => option.value);
+    }
+
+    @computed
     public get selectedValues() {
-        return (this.props.options || [])
-            .filter(option => !this.props.filter ||
+        return this.allValues
+            .filter(value => !this.props.filter ||
                 this.props.filter.values.find(
-                    filterValue => option.value.toLowerCase() === filterValue.toLowerCase()))
-            .map(option => ({value: option.value}));
+                    filterValue => value.toLowerCase() === filterValue.toLowerCase()))
+            .map(value => ({value}));
     }
 
     @computed
@@ -51,7 +56,7 @@ export class DropdownSelector extends React.Component<DropdownSelectorProps, {}>
     @action
     private onChange(values: Array<{value: string}>) {
         if (this.props.onSelect) {
-            this.props.onSelect(values.map(o => o.value));
+            this.props.onSelect(values.map(o => o.value), this.allValues.length === values.length);
         }
     }
 }
