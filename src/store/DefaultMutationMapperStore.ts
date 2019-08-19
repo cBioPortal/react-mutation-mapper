@@ -40,6 +40,8 @@ interface DefaultMutationMapperStoreConfig {
     filterMutationsBySelectedTranscript?: boolean;
     genomeNexusUrl?: string;
     oncoKbUrl?: string;
+    cachePostMethodsOnClients?: boolean;
+    apiCacheLimit?: number;
     getMutationCount?: (mutation: Partial<Mutation>) => number;
     dataFilters?: DataFilter[];
     selectionFilters?: DataFilter[];
@@ -161,7 +163,9 @@ class DefaultMutationMapperStore implements MutationMapperStore
     public get dataFetcher(): DefaultMutationMapperDataFetcher {
         return new DefaultMutationMapperDataFetcher({
             genomeNexusUrl: this.config.genomeNexusUrl,
-            oncoKbUrl: this.config.oncoKbUrl
+            oncoKbUrl: this.config.oncoKbUrl,
+            cachePostMethodsOnClients: this.config.cachePostMethodsOnClients,
+            apiCacheLimit: this.config.apiCacheLimit
         });
     }
 

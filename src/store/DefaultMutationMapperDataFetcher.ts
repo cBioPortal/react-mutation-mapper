@@ -37,6 +37,8 @@ export interface MutationMapperDataFetcherConfig {
     myGeneUrlTemplate?: string;
     uniprotIdUrlTemplate?: string;
     mutationAlignerUrlTemplate?: string;
+    cachePostMethodsOnClients?: boolean;
+    apiCacheLimit?: number;
     genomeNexusUrl?: string;
     oncoKbUrl?: string;
 }
@@ -53,9 +55,12 @@ export class DefaultMutationMapperDataFetcher
         genomeNexusInternalClient?: Partial<GenomeNexusAPIInternal>,
         oncoKbClient?: Partial<OncoKbAPI>
     ) {
-        this.genomeNexusClient = genomeNexusClient as GenomeNexusAPI || initGenomeNexusClient(config.genomeNexusUrl);
-        this.genomeNexusInternalClient = genomeNexusInternalClient as GenomeNexusAPIInternal || initGenomeNexusInternalClient(config.genomeNexusUrl);
-        this.oncoKbClient = oncoKbClient as OncoKbAPI || initOncoKbClient(config.oncoKbUrl);
+        this.genomeNexusClient = genomeNexusClient as GenomeNexusAPI ||
+            initGenomeNexusClient(config.genomeNexusUrl, config.cachePostMethodsOnClients, config.apiCacheLimit);
+        this.genomeNexusInternalClient = genomeNexusInternalClient as GenomeNexusAPIInternal ||
+            initGenomeNexusInternalClient(config.genomeNexusUrl, config.cachePostMethodsOnClients, config.apiCacheLimit);
+        this.oncoKbClient = oncoKbClient as OncoKbAPI ||
+            initOncoKbClient(config.oncoKbUrl, config.cachePostMethodsOnClients, config.apiCacheLimit);
     }
 
     public async fetchSwissProtAccession(entrezGeneId: number)
