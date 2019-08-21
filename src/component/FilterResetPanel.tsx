@@ -26,7 +26,7 @@ export class FilterResetPanel extends React.Component<FilterResetPanelProps, {}>
         return (
             <div className={this.props.className}>
                 <span style={{verticalAlign: "middle"}}>
-                    {`${this.props.mutationsShown} mutations are shown based on your filtering.`}
+                    {`${this.props.mutationsShown} mutations are shown based on current filtering.`}
                     <button
                         className={this.props.buttonClass}
                         style={{cursor:"pointer", marginLeft:6}}
