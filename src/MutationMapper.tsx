@@ -38,6 +38,8 @@ export type MutationMapperProps = {
     // TODO annotateMutations?: boolean;
     genomeNexusUrl?: string;
     oncoKbUrl?: string;
+    cachePostMethodsOnClients?: boolean;
+    apiCacheLimit?: number;
     showTranscriptDropDown?: boolean;
     showOnlyAnnotatedTranscriptsInDropdown?: boolean;
     filterMutationsBySelectedTranscript?: boolean;
@@ -65,6 +67,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
         showOnlyAnnotatedTranscriptsInDropdown: false,
         showTranscriptDropDown: false,
         filterMutationsBySelectedTranscript: false,
+        cachePostMethodsOnClients: true
     };
 
     @observable
@@ -119,6 +122,8 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 filterMutationsBySelectedTranscript: this.props.filterMutationsBySelectedTranscript,
                 genomeNexusUrl: this.props.genomeNexusUrl,
                 oncoKbUrl: this.props.oncoKbUrl,
+                cachePostMethodsOnClients: this.props.cachePostMethodsOnClients,
+                apiCacheLimit: this.props.apiCacheLimit,
                 getMutationCount: this.props.getMutationCount,
                 dataFilters: this.props.dataFilters,
                 selectionFilters: this.props.selectionFilters,
