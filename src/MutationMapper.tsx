@@ -219,9 +219,15 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
         );
     }
 
+    @computed
+    protected get mutationRates(): MutationRate[] | undefined
+    {
+        return this.props.mutationRates;
+    }
+
     protected get mutationRateSummary(): JSX.Element | null
     {
-        return this.props.mutationRates ? <DefaultMutationRateSummary rates={this.props.mutationRates!} /> : null;
+        return this.mutationRates ? <DefaultMutationRateSummary rates={this.mutationRates!} /> : null;
     }
 
     protected get isFiltered() {
