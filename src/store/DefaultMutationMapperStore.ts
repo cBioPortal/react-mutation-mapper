@@ -43,6 +43,7 @@ interface DefaultMutationMapperStoreConfig {
     cachePostMethodsOnClients?: boolean;
     apiCacheLimit?: number;
     getMutationCount?: (mutation: Partial<Mutation>) => number;
+    getTumorType?: (mutation: Partial<Mutation>) => string;
     dataFilters?: DataFilter[];
     selectionFilters?: DataFilter[];
     highlightFilters?: DataFilter[];
@@ -632,8 +633,7 @@ class DefaultMutationMapperStore implements MutationMapperStore
 
     @autobind
     protected getDefaultTumorType(mutation: Mutation): string {
-        // TODO get actual tumor type for a given mutation (if possible)
-        return mutation ? "Unknown" : "";
+        return this.config.getTumorType ? this.config.getTumorType(mutation) : "Unknown";
     }
 
     @autobind

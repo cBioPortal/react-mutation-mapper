@@ -49,6 +49,7 @@ export type MutationMapperProps = {
     geneSummaryLoadingIndicator?: JSX.Element;
     getLollipopColor?: (mutations: Partial<Mutation>[]) => string;
     getMutationCount?: (mutation: Partial<Mutation>) => number;
+    getTumorType?: (mutation: Partial<Mutation>) => string;
     onXAxisOffset?: (offset:number) => void;
     onTrackVisibilityChange?: (selectedTrackIds: string[]) => void;
 
@@ -125,6 +126,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 cachePostMethodsOnClients: this.props.cachePostMethodsOnClients,
                 apiCacheLimit: this.props.apiCacheLimit,
                 getMutationCount: this.props.getMutationCount,
+                getTumorType: this.props.getTumorType,
                 dataFilters: this.props.dataFilters,
                 selectionFilters: this.props.selectionFilters,
                 highlightFilters: this.props.highlightFilters,
