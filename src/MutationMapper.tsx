@@ -22,6 +22,7 @@ import {TrackDataStatus, TrackName, TrackVisibility} from "./TrackSelector";
 
 export type MutationMapperProps = {
     hugoSymbol?: string;
+    entrezGeneId?: number;
     data?: Partial<Mutation>[];
     store?: MutationMapperStore;
     windowWrapper?: {size: {width: number, height: number}};
@@ -114,7 +115,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
     {
         return this.props.store ? this.props.store! : new DefaultMutationMapperStore(
             {
-                // TODO entrezGeneId: ???, -> we need entrezGeneId to display uniprot id
+                entrezGeneId: this.props.entrezGeneId, // entrezGeneId is required to display uniprot id
                 hugoGeneSymbol: this.props.hugoSymbol ? this.props.hugoSymbol! : ""
             },
             {
