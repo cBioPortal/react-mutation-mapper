@@ -71,6 +71,7 @@ export {SequenceSpec} from "./model/SequenceSpec";
 export * from "./util/CancerHotspotsUtils";
 export * from "./util/DataFetcherUtils";
 export * from "./util/FilterUtils";
+export * from "./util/FormatUtils";
 export * from "./util/MutationAnnotator";
 export {
     MUTATION_TYPE_PRIORITY,
