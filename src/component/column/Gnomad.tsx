@@ -1,6 +1,5 @@
-import {
-    MyVariantInfo
-} from "cbioportal-frontend-commons";
+import autobind from "autobind-decorator";
+import {MyVariantInfo} from "cbioportal-frontend-commons";
 import {observer} from "mobx-react";
 import * as React from "react";
 
@@ -9,13 +8,7 @@ import {RemoteData} from "../../model/RemoteData";
 import {defaultSortMethod} from "../../util/ReactTableUtils";
 import {getMyVariantInfoAnnotation} from "../../util/VariantAnnotationUtils";
 import GnomadFrequency, {calculateAlleleFrequency} from "../gnomad/GnomadFrequency";
-import {errorIcon, loaderIcon} from "../StatusHelpers";
-
-export type GnomadProps = {
-    mutation?: Mutation;
-    indexedMyVariantInfoAnnotations: RemoteData<{[genomicLocation: string]: MyVariantInfo} | undefined>;
-    className?: string;
-};
+import {MyVariantInfoProps, renderMyVariantInfoContent} from "./MyVariantInfoHelper";
 
 export function getMyVariantInfoData(mutation?: Mutation,
                                      indexedMyVariantInfoAnnotations?: RemoteData<{[genomicLocation: string]: MyVariantInfo} | undefined>)
@@ -60,36 +53,18 @@ export function gnomadSortMethod(a: MyVariantInfo, b: MyVariantInfo)
 }
 
 @observer
-export default class Gnomad extends React.Component<GnomadProps, {}>
+export default class Gnomad extends React.Component<MyVariantInfoProps, {}>
 {
-    public static defaultProps: Partial<GnomadProps> = {
+    public static defaultProps: Partial<MyVariantInfoProps> = {
         className: "pull-right mr-1"
     };
 
-    public render()
-    {
-        let content;
-        const status = this.props.indexedMyVariantInfoAnnotations.status;
-        const myVariantInfo = getMyVariantInfoAnnotation(this.props.mutation,
-            this.props.indexedMyVariantInfoAnnotations.result);
+    public render() {
+        return renderMyVariantInfoContent(this.props, this.getContent);
+    }
 
-        if (status === "pending") {
-            content = loaderIcon();
-        }
-        else if (status === "error") {
-            content = errorIcon("Error fetching Genome Nexus annotation");
-        }
-        else if (!myVariantInfo) {
-            content = null;
-        }
-        else {
-            content = <GnomadFrequency myVariantInfo={myVariantInfo} />;
-        }
-
-        return (
-            <div className={this.props.className}>
-                {content}
-            </div>
-        );
+    @autobind
+    public getContent(myVariantInfo: MyVariantInfo) {
+        return <GnomadFrequency myVariantInfo={myVariantInfo} />;
     }
 }
