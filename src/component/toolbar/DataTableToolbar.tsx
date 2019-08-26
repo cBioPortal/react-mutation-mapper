@@ -12,6 +12,7 @@ type DataTableToolbarProps = {
     columnSelectorProps?: ColumnSelectorProps;
     showSearchBox?: boolean;
     onSearch?: (searchText: string) => void;
+    filterInputRef?: (input: HTMLInputElement) => void;
     searchDelay?: number;
     searchPlaceHolder?: string;
 }
@@ -55,6 +56,7 @@ export class DataTableToolbar extends React.Component<DataTableToolbarProps, {}>
                                 this.props.onSearch ?
                                     _.debounce(this.props.onSearch, this.props.searchDelay) : this.props.onSearch
                             }
+                            filterInputRef={this.props.filterInputRef}
                         />
                     </div>
                 )}

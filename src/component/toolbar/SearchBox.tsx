@@ -5,6 +5,7 @@ import {FormEvent} from "react";
 interface ISearchBoxProps
 {
     onChange?: (input: string) => void;
+    filterInputRef?: (input: HTMLInputElement) => void;
     placeholder?: string;
     searchIconClassName?: string;
     boxHeight?: number;
@@ -28,6 +29,7 @@ export class SearchBox extends React.Component<ISearchBoxProps>
                 <input
                     type="text"
                     onInput={this.onChange}
+                    ref={this.props.filterInputRef}
                     className="form-control"
                     placeholder={this.props.placeholder}
                     aria-label="Search"

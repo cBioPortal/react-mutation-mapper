@@ -5,7 +5,7 @@ import {
 } from "cbioportal-frontend-commons";
 import classnames from "classnames";
 import _ from "lodash";
-import {action, computed, IReactionPublic, observable, reaction} from "mobx";
+import {action, computed, IReactionDisposer, IReactionPublic, observable, reaction} from "mobx";
 import {observer} from "mobx-react";
 import * as React from 'react';
 import ReactTable, {Column, RowInfo, TableProps} from "react-table";
@@ -15,6 +15,7 @@ import {DataTableToolbar} from "./component/toolbar/DataTableToolbar";
 import {DataFilter} from "./model/DataFilter";
 import {DataStore} from "./model/DataStore";
 import {RemoteData} from "./model/RemoteData";
+import {TEXT_INPUT_FILTER_ID} from "./util/FilterUtils";
 import {getRemoteDataGroupStatus} from "./util/RemoteDataUtils";
 import './defaultDataTable.scss';
 
@@ -79,12 +80,23 @@ export default class DataTable<T> extends React.Component<DataTableProps<T>, {}>
         highlightColorDark: "#9FAFD1"
     };
 
+    private filterInput: HTMLInputElement | undefined;
+    private filterInputReaction: IReactionDisposer | undefined;
+
     // this keeps the state of the latest action (latest user selection)
     @observable
     private _columnVisibilityOverride:{[columnId: string]: boolean} | undefined;
 
     @observable
     private expanded: {[index: number] : boolean} = {};
+
+    constructor(props: DataTableProps<T>)
+    {
+        super(props);
+
+        this.filterInputReaction = this.props.dataStore ?
+            this.createFilterInputResetReaction(this.props.dataStore): undefined;
+    }
 
     @computed
     get tableData(): T[] | undefined
@@ -183,6 +195,7 @@ export default class DataTable<T> extends React.Component<DataTableProps<T>, {}>
                     visibilityToggle={this.onVisibilityToggle}
                     showSearchBox={this.props.showSearchBox}
                     onSearch={this.onSearch}
+                    filterInputRef={this.filterInputRef}
                     searchDelay={this.props.searchDelay}
                     showColumnVisibility={this.props.showColumnVisibility}
                     columnVisibility={this.columnVisibilityDef}
@@ -215,19 +228,54 @@ export default class DataTable<T> extends React.Component<DataTableProps<T>, {}>
     componentWillReceiveProps(nextProps: Readonly<DataTableProps<T>>)
     {
         if (nextProps.dataStore) {
-            // this is to reset expander component every time the data or selection filters update
-            // it would be cleaner if we could do this with a ReactTable callback (something like onDataChange),
-            // but no such callback exists
-            reaction(
-                () => [nextProps.dataStore!.selectionFilters, nextProps.dataStore!.dataFilters],
-                (filters: DataFilter[][], disposer: IReactionPublic) => {
-                    if (filters.length > 0) {
-                        this.resetExpander();
-                    }
-                    disposer.dispose();
-                }
-            );
+            this.createExpanderResetReaction(nextProps.dataStore);
         }
+    }
+
+    componentWillUnmount(): void
+    {
+        if (this.filterInputReaction) {
+            this.filterInputReaction();
+        }
+    }
+
+    /**
+     * This reaction is to reset expander component every time the data or selection filters update.
+     * It would be cleaner if we could do this with a ReactTable callback (something like onDataChange),
+     * but no such callback exists.
+     */
+    protected createExpanderResetReaction(dataStore: DataStore)
+    {
+        return reaction(
+            () => [dataStore.selectionFilters, dataStore.dataFilters],
+            (filters: DataFilter[][], disposer: IReactionPublic) => {
+                if (filters.length > 0) {
+                    this.resetExpander();
+                }
+                disposer.dispose();
+            }
+        );
+    }
+
+    /**
+     * This reaction is to reset search input box content when text input filter is reset.
+     * TODO if possible directly render the value in the actual search box component instead of adding this reaction
+     */
+    protected createFilterInputResetReaction(dataStore: DataStore)
+    {
+        return reaction(
+            () => dataStore.dataFilters,
+            dataFilters => {
+                if (this.filterInput) {
+                    const inputFilter = dataFilters.find(f => f.id === TEXT_INPUT_FILTER_ID);
+
+                    // reset the input text value in case of no text input filter
+                    if (!inputFilter) {
+                        this.filterInput.value = "";
+                    }
+                }
+            }
+        );
     }
 
     @autobind
@@ -238,6 +286,12 @@ export default class DataTable<T> extends React.Component<DataTableProps<T>, {}>
                 background: state && row && this.getRowBackground(row)
             }
         };
+    }
+
+    @autobind
+    protected filterInputRef(input: HTMLInputElement)
+    {
+        this.filterInput = input;
     }
 
     @action.bound
