@@ -6,6 +6,7 @@ import * as React from "react";
 import {Column} from "react-table";
 
 import Annotation, {annotationSortMethod, getAnnotationData} from "./component/column/Annotation";
+import ClinVar, {clinVarSortMethod} from "./component/column/ClinVar";
 import ColumnHeader from "./component/column/ColumnHeader";
 import Gnomad, {
     getMyVariantInfoData,
@@ -47,7 +48,8 @@ export enum MutationColumn {
     END_POSITION = "endPosition",
     REFERENCE_ALLELE = "referenceAllele",
     VARIANT_ALLELE = "variantAllele",
-    GNOMAD = "gnomad"
+    GNOMAD = "gnomad",
+    CLINVAR = "clinVarId"
 }
 
 export enum MutationColumnName {
@@ -60,7 +62,8 @@ export enum MutationColumnName {
     END_POSITION = "End Pos",
     REFERENCE_ALLELE = "Ref",
     VARIANT_ALLELE = "Var",
-    GNOMAD = "gnomAD"
+    GNOMAD = "gnomAD",
+    CLINVAR = "ClinVar ID"
 }
 
 const HEADERS = {
@@ -105,6 +108,17 @@ const HEADERS = {
                     <a href="https://gnomad.broadinstitute.org/" target="_blank">gnomAD</a> population allele frequencies.
                     Overall population allele frequency is shown.
                     Hover over a frequency to see the frequency for each specific population.
+                </span>
+            }
+        />
+    ),
+    [MutationColumn.CLINVAR]: (
+        <ColumnHeader
+            headerContent={<span>{MutationColumnName.CLINVAR} <i className="fa fa-info-circle" /></span>}
+            overlay={
+                <span>
+                    <a href="https://www.ncbi.nlm.nih.gov/clinvar/" target="_blank">ClinVar</a> aggregates
+                    information about genomic variation and its relationship to human health.
                 </span>
             }
         />
@@ -156,7 +170,7 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
     }
 
     @computed
-    get gnomadColumnAccessor() {
+    get myVariantInfoAccessor() {
         return this.gnomadColumnDataStatus === "pending" ?
             () => undefined:
             (mutation: Mutation) => getMyVariantInfoData(mutation, this.props.indexedMyVariantInfoAnnotations)
@@ -267,7 +281,7 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
             {
                 id: MutationColumn.GNOMAD,
                 name: MutationColumnName.GNOMAD,
-                accessor: this.gnomadColumnAccessor,
+                accessor: this.myVariantInfoAccessor,
                 Cell: (column: any) =>
                     <Gnomad
                         mutation={column.original}
@@ -275,6 +289,18 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                     />,
                 Header: HEADERS[MutationColumn.GNOMAD],
                 sortMethod: gnomadSortMethod
+            },
+            {
+                id: MutationColumn.CLINVAR,
+                name: MutationColumnName.CLINVAR,
+                accessor: this.myVariantInfoAccessor,
+                Cell: (column: any) =>
+                    <ClinVar
+                        mutation={column.original}
+                        indexedMyVariantInfoAnnotations={this.props.indexedMyVariantInfoAnnotations}
+                    />,
+                Header: HEADERS[MutationColumn.CLINVAR],
+                sortMethod: clinVarSortMethod
             }
         ];
     }
