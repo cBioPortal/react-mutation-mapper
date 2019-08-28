@@ -7,8 +7,26 @@ export {
     sortValue as gnomadSortValue
 } from "./component/column/Gnomad";
 
-export {default as DropdownSelector, DropdownSelectorProps} from "./component/filter/DropdownSelector";
-export {default as ProteinImpactTypeSelector} from "./component/filter/ProteinImpactTypeSelector";
+export {
+    default as DropdownSelector,
+    DropdownSelectorProps
+} from "./component/filter/DropdownSelector";
+export {
+    default as BadgeSelector,
+    BadgeSelectorProps
+} from "./component/filter/BadgeSelector";
+export {
+    default as ProteinImpactTypeDropdownSelector,
+    ProteinImpactTypeDropdownSelectorProps
+} from "./component/filter/ProteinImpactTypeDropdownSelector";
+export {
+    default as ProteinImpactTypeBadgeSelector,
+    ProteinImpactTypeBadgeSelectorProps
+} from "./component/filter/ProteinImpactTypeBadgeSelector";
+export {
+    default as MutationStatusBadgeSelector,
+    MutationStatusBadgeSelectorProps
+} from "./component/filter/MutationStatusBadgeSelector";
 
 export {
     default as OncoKB,

@@ -1,8 +1,13 @@
+import {getProteinImpactType, ProteinImpactType} from "cbioportal-frontend-commons";
 import _ from "lodash";
 
-import {MutationFilter} from "../filter/MutationFilter";
+import {MutationFilter, MutationFilterValue} from "../filter/MutationFilter";
+import {PositionFilter} from "../filter/PositionFilter";
+import {ProteinImpactTypeFilter} from "../filter/ProteinImpactTypeFilter";
 import DataStore from "../model/DataStore";
 import {DataFilter, DataFilterType} from "../model/DataFilter";
+import {ApplyFilterFn} from "../model/FilterApplier";
+import {Mutation} from "../model/Mutation";
 
 export const TEXT_INPUT_FILTER_ID = "_mutationTableTextInputFilter_";
 
@@ -83,4 +88,61 @@ export function findNonTextInputFilters(dataFilters: DataFilter[])
 export function findOneMutationFilterValue(filter: MutationFilter)
 {
     return filter.values.length > 0 ? _.values(filter.values[0])[0]: undefined;
+}
+
+export function applyDefaultPositionFilter(filter: PositionFilter, mutation: Mutation)
+{
+    // const positions: {[position: string]: {position: number}} = indexPositions([filter]);
+    // return !positions || !!positions[mutation.proteinPosStart+""];
+
+    return filter.values.includes(mutation.proteinPosStart);
+}
+
+export function applyDefaultProteinImpactTypeFilter(filter: ProteinImpactTypeFilter, mutation: Mutation)
+{
+    return filter.values.includes(getProteinImpactType(mutation.mutationType || "other"));
+}
+
+export function applyDefaultMutationFilter(filter: MutationFilter, mutation: Mutation)
+{
+    const filterPredicates = filter.values.map((value: MutationFilterValue) => {
+        const valuePredicates = Object.keys(value).map(key =>
+            includesSearchTextIgnoreCase(mutation[key] ? mutation[key].toString() : undefined,
+                value[key] ? value[key.toString()]: undefined));
+
+        // all predicates should be true in order for a match with a single MutationFilterValue
+        // (multiple values within the same MutationFilterValue are subject to AND)
+        return !valuePredicates.includes(false);
+    });
+
+    // a single true within a set of MutationFilterValues is a match for the entire filter
+    // (multiple MutationFilterValues within the same MutationFilter are subject to OR)
+    return filterPredicates.includes(true);
+}
+
+export function groupDataByGroupFilters(groupFilters: {group: string, filter: DataFilter}[],
+                                        dataStore: DataStore,
+                                        applyFilter: ApplyFilterFn)
+{
+    return groupFilters.map(groupFilter => ({
+        group: groupFilter.group,
+        data: dataStore.sortedFilteredData.filter(
+            // TODO simplify array flatten if possible
+            m => applyFilter(groupFilter.filter, _.flatten([m])[0]))
+    }));
+}
+
+export function groupDataByProteinImpactType(dataStore: DataStore)
+{
+    const filters = Object.keys(ProteinImpactType).map(key => ({
+        group: ProteinImpactType[key],
+        filter: {
+            type: DataFilterType.PROTEIN_IMPACT_TYPE,
+            values: [ProteinImpactType[key]]
+        }
+    }));
+
+    const groupedData = groupDataByGroupFilters(filters, dataStore, applyDefaultProteinImpactTypeFilter);
+
+    return _.keyBy(groupedData, d => d.group);
 }
