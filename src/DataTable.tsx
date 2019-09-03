@@ -17,7 +17,6 @@ import {DataStore} from "./model/DataStore";
 import {RemoteData} from "./model/RemoteData";
 import {TEXT_INPUT_FILTER_ID} from "./util/FilterUtils";
 import {getRemoteDataGroupStatus} from "./util/RemoteDataUtils";
-import './defaultDataTable.scss';
 
 export type DataTableColumn<T> = Column<T> & {
     name?: string;
@@ -45,6 +44,8 @@ export type DataTableProps<T> =
     showSearchBox?: boolean;
     onSearch?: (input: string, visibleSearchableColumns: DataTableColumn<T>[]) => void;
     searchDelay?: number;
+    searchPlaceholder?: string;
+    info?: JSX.Element;
     columnVisibility?: {[columnId: string]: boolean};
     columnSelectorProps?: ColumnSelectorProps;
 };
@@ -197,6 +198,8 @@ export default class DataTable<T> extends React.Component<DataTableProps<T>, {}>
                     onSearch={this.onSearch}
                     filterInputRef={this.filterInputRef}
                     searchDelay={this.props.searchDelay}
+                    searchPlaceHolder={this.props.searchPlaceholder}
+                    info={this.props.info}
                     showColumnVisibility={this.props.showColumnVisibility}
                     columnVisibility={this.columnVisibilityDef}
                     columnSelectorProps={this.props.columnSelectorProps}

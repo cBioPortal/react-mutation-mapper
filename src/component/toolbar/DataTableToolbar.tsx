@@ -15,6 +15,7 @@ type DataTableToolbarProps = {
     filterInputRef?: (input: HTMLInputElement) => void;
     searchDelay?: number;
     searchPlaceHolder?: string;
+    info?: JSX.Element;
 }
 
 @observer
@@ -26,6 +27,10 @@ export class DataTableToolbar extends React.Component<DataTableToolbarProps, {}>
         searchDelay: 400
     };
 
+    protected get searchBoxMargin() {
+        return this.props.showColumnVisibility ? 5 : "auto";
+    }
+
     public render()
     {
         return (
@@ -33,6 +38,7 @@ export class DataTableToolbar extends React.Component<DataTableToolbarProps, {}>
                 className="dataTableMainToolbar"
                 style={{paddingBottom: "0.4rem", display: "flex"}}
             >
+                {this.props.info}
                 {this.props.showColumnVisibility && (
                     <div
                         className="small"
@@ -48,7 +54,7 @@ export class DataTableToolbar extends React.Component<DataTableToolbarProps, {}>
                 {this.props.showSearchBox && (
                     <div
                         className="small"
-                        style={{width: 200, marginLeft: 5}}
+                        style={{width: 200, marginLeft: this.searchBoxMargin}}
                     >
                         <SearchBox
                             placeholder={this.props.searchPlaceHolder}
