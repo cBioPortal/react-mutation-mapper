@@ -31,6 +31,8 @@ export * from "./component/ColumnSelector";
 export * from "./component/FilterResetPanel";
 export * from "./component/StatusHelpers";
 
+export {default as DataTable, DataTableColumn} from "./DataTable";
+export {default as DefaultMutationTable, MutationColumn, MutationColumnName} from "./DefaultMutationTable";
 export {default as Domain} from "./Domain";
 export {default as HotspotInfo} from "./HotspotInfo";
 export {default as Lollipop} from "./Lollipop";
