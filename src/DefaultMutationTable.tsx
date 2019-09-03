@@ -27,6 +27,8 @@ import {findNonTextInputFilters, TEXT_INPUT_FILTER_ID} from "./util/FilterUtils"
 import {getRemoteDataGroupStatus} from "./util/RemoteDataUtils";
 import DataTable, {DataTableColumn, DataTableProps} from "./DataTable";
 
+import './defaultMutationTable.scss';
+
 export type DefaultMutationTableProps = {
     hotspotData?: RemoteData<IHotspotIndex | undefined>;
     oncoKbData?: RemoteData<IOncoKbData | Error | undefined>;
@@ -312,6 +314,7 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                 columns={this.columns}
                 initialSortColumnData={this.initialSortColumnData}
                 onSearch={this.onSearch}
+                className="default-mutation-table"
             />
         );
     }
