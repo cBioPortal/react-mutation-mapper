@@ -30,6 +30,8 @@ import LollipopMutationPlotControls from "./LollipopMutationPlotControls";
 import {TrackDataStatus, TrackName, TrackVisibility} from "./TrackSelector";
 import TrackPanel from "./TrackPanel";
 
+import "./lollipopMutationPlot.scss";
+
 const DEFAULT_PROTEIN_LENGTH = 10;
 
 export type LollipopMutationPlotProps = {
@@ -37,6 +39,17 @@ export type LollipopMutationPlotProps = {
     pubMedCache?: MobxCache;
     getLollipopColor?: (mutations: Partial<Mutation>[]) => string;
     getMutationCount?: (mutation: Partial<Mutation>) => number;
+    topYAxisSymbol?: string;
+    bottomYAxisSymbol?: string;
+    topYAxisDefaultMax?: number;
+    topYAxisDefaultMin?: number;
+    yMaxFractionDigits?: number;
+    yMaxLabelPostfix?: string;
+    bottomYAxisDefaultMax?: number;
+    bottomYAxisDefaultMin?: number;
+    yAxisLabelPadding?: number;
+    lollipopTooltipCountInfo?: (count: number, mutations?: Partial<Mutation>[]) => JSX.Element;
+    customControls?: JSX.Element;
     onXAxisOffset?: (offset:number) => void;
     geneWidth: number;
     trackVisibility?: TrackVisibility;
@@ -55,9 +68,13 @@ export type LollipopMutationPlotProps = {
 @observer
 export default class LollipopMutationPlot extends React.Component<LollipopMutationPlotProps, {}>
 {
+    public static defaultProps: Partial<LollipopMutationPlotProps> = {
+        yMaxFractionDigits: 2
+    };
+
     @observable private mouseInPlot:boolean = true;
-    @observable private _yMaxInput:number;
-    @observable private _bottomYMaxInput:number;
+    @observable private _yMaxInput: number | undefined;
+    @observable private _bottomYMaxInput: number | undefined;
     @observable private legendShown:boolean = false;
     @observable private yMaxInputFocused:boolean = false;
     @observable private geneXOffset:number;
@@ -74,14 +91,20 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
         return this.props.trackVisibility || this._trackVisibility;
     }
 
-    private lollipopTooltip(mutationsAtPosition:Mutation[], countsByPosition:{[pos: number]: number}):JSX.Element {
+    private lollipopTooltip(mutationsAtPosition:Mutation[],
+                            countsByPosition:{[pos: number]: number}): JSX.Element
+    {
         const codon = mutationsAtPosition[0].proteinPosStart;
         const count = countsByPosition[codon];
-        const mutationStr = "mutation" + (count > 1 ? "s" : "");
+        const countInfo = this.props.lollipopTooltipCountInfo ?
+            this.props.lollipopTooltipCountInfo(count, mutationsAtPosition):
+            <strong>{count} mutation{`${count !== 1 ? "s" : ""}`}</strong>;
         const label = lollipopLabelText(mutationsAtPosition);
+
         return (
             <div>
-                <b>{count} {mutationStr}</b><br/>
+                {countInfo}
+                <br/>
                 <span>AA Change: {label}</span>
             </div>
         );
@@ -341,19 +364,19 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
     @computed get countRange(): [number, number]
     {
         return calcCountRange(
-            this.lollipops.filter(l => l.placement !== LollipopPlacement.BOTTOM)
+            this.lollipops.filter(l => l.placement !== LollipopPlacement.BOTTOM),
+            this.props.topYAxisDefaultMax,
+            this.props.topYAxisDefaultMin
         );
     }
 
     @computed get bottomCountRange(): [number, number] {
 
         return calcCountRange(
-            this.lollipops.filter(l => l.placement === LollipopPlacement.BOTTOM)
+            this.lollipops.filter(l => l.placement === LollipopPlacement.BOTTOM),
+            this.props.bottomYAxisDefaultMax,
+            this.props.bottomYAxisDefaultMin
         );
-    }
-
-    @computed get sliderRange() {
-        return [this.countRange[0], Math.max(this.countRange[1], this.countRange[0]+5)];
     }
 
     constructor(props: LollipopMutationPlotProps) {
@@ -361,13 +384,13 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
 
         this.handlers = {
             handleYAxisMaxSliderChange: action(
-                (event:any) => this._yMaxInput = getYAxisMaxSliderValue(event, this.countRange)
+                (value: number) => this._yMaxInput = getYAxisMaxSliderValue(value, this.countRange)
             ),
             handleYAxisMaxChange: action(
                 (input: string) => this._yMaxInput = getYAxisMaxInputValue(input, this.countRange)
             ),
             handleBottomYAxisMaxSliderChange: action(
-                (event:any) => this._bottomYMaxInput= getYAxisMaxSliderValue(event, this.bottomCountRange)
+                (value: number) => this._bottomYMaxInput= getYAxisMaxSliderValue(value, this.bottomCountRange)
             ),
             handleBottomYAxisMaxChange: action(
                 (input: string) => this._bottomYMaxInput = getYAxisMaxInputValue(input, this.bottomCountRange)
@@ -391,19 +414,27 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
         return Math.min(this.countRange[1], this._yMaxInput || this.countRange[1]);
     }
 
+    @computed get yMaxSliderStep() {
+        return this.countRange[0] < 1 ? 0.001 : 1;
+    }
+
     @computed get bottomYMaxSlider() {
         // we don't want max slider value to go over the actual max, even if the user input goes over it
         return Math.min(this.bottomCountRange[1], this._bottomYMaxInput || this.bottomCountRange[1]);
     }
 
+    @computed get bottomYMaxSliderStep() {
+        return this.bottomCountRange[0] < 1 ? 0.001 : 1;
+    }
+
     @computed get yMaxInput() {
-        // allow the user input value to go over the actual count rage
-        return this._yMaxInput || this.countRange[1];
+        // allow the user input value to go over the actual count range
+        return this._yMaxInput === undefined ? this.countRange[1]: this._yMaxInput;
     }
 
     @computed get bottomYMaxInput() {
-        // allow the user input value to go over the actual count rage
-        return this._bottomYMaxInput || this.bottomCountRange[1];
+        // allow the user input value to go over the actual count range
+        return this._bottomYMaxInput === undefined ? this.bottomCountRange[1]: this._bottomYMaxInput;
     }
 
     @autobind
@@ -460,9 +491,14 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                         onYMaxInputBlurred={this.handlers.onYMaxInputBlurred}
                         onToggleLegend={this.handlers.handleToggleLegend}
                         yMaxSlider={this.yMaxSlider}
-                        yMaxInput={this.yMaxInput}
+                        yMaxSliderStep={this.yMaxSliderStep}
+                        yMaxInput={this.yMaxSliderStep < 1 ?
+                            Number(this.yMaxInput.toFixed(this.props.yMaxFractionDigits)): this.yMaxInput}
+                        yMaxFractionDigits={this.props.yMaxFractionDigits}
                         bottomYMaxSlider={this.bottomYMaxSlider}
+                        bottomYMaxSliderStep={this.bottomYMaxSliderStep}
                         bottomYMaxInput={this.bottomYMaxInput}
+                        customControls={this.props.customControls}
                         trackVisibility={this.trackVisibility}
                         tracks={this.props.tracks}
                         trackDataStatus={this.props.trackDataStatus}
@@ -482,8 +518,15 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                         hugoGeneSymbol={this.hugoGeneSymbol}
                         xMax={this.proteinLength}
                         yMax={this.yMaxInput}
+                        yMaxFractionDigits={this.yMaxSliderStep < 1 ?
+                            this.props.yMaxFractionDigits: undefined
+                        }
+                        yMaxLabelPostfix={this.props.yMaxLabelPostfix}
+                        yAxisLabelPadding={this.props.yAxisLabelPadding}
                         bottomYMax={this.bottomYMaxInput}
                         onXAxisOffset={this.onXAxisOffset}
+                        topYAxisSymbol={this.props.topYAxisSymbol}
+                        bottomYAxisSymbol={this.props.bottomYAxisSymbol}
                         groups={this.groups}
                     />
                     <TrackPanel

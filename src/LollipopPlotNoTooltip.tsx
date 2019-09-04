@@ -282,6 +282,15 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
                 .reduce((max:number, next: LollipopSpec) => Math.max(max, next.count), 1);
     }
 
+    @computed private get yMaxDisplay() {
+        return this.props.yMaxFractionDigits ?
+            Number(this.yMax.toFixed(this.props.yMaxFractionDigits)): this.yMax;
+    }
+
+    @computed private get yMaxPostfix() {
+        return this.props.yMaxLabelPostfix ? this.props.yMaxLabelPostfix : "";
+    }
+
     @computed private get bottomYMax() {
         return this.props.bottomYMax ||
             this.props.lollipops
@@ -289,12 +298,17 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
                 .reduce((max:number, next: LollipopSpec) => Math.max(max, next.count), 1);
     }
 
+    @computed private get bottomYMaxDisplay() {
+        return this.props.yMaxFractionDigits ?
+            Number(this.bottomYMax.toFixed(this.props.yMaxFractionDigits)): this.bottomYMax;
+    }
+
     @computed private get yMaxLabel() {
         return (
             this.props.lollipops
                 .filter(l => l.placement !== LollipopPlacement.BOTTOM)
                 .find(lollipop => lollipop.count > this.yMax) ? ">= " : ""
-        ) + this.yMax;
+        ) + this.yMaxDisplay + this.yMaxPostfix;
     }
 
     @computed private get bottomYMaxLabel() {
@@ -302,7 +316,7 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
             this.props.lollipops
                 .filter(l => l.placement === LollipopPlacement.BOTTOM)
                 .find(lollipop => lollipop.count > this.bottomYMax) ? ">= " : ""
-        ) + this.bottomYMax;
+        ) + this.bottomYMaxDisplay + this.yMaxPostfix;
     }
 
     @computed private get needBottomPlacement() {
@@ -321,8 +335,16 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
         return this.props.groups ? this.props.groups[0] : undefined;
     }
 
+    @computed private get topGroupSymbol() {
+        return this.props.topYAxisSymbol || "#";
+    }
+
     @computed private get bottomGroupName() {
         return this.props.groups ? this.props.groups[1] : undefined;
+    }
+
+    @computed private get bottomGroupSymbol() {
+        return this.props.bottomYAxisSymbol || "#";
     }
 
     @computed private get combinedXAxisHeight() {
@@ -491,11 +513,16 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
         });
     }
 
-    private yAxis(y: number, yMax: number, ticks: Tick[], placement?: LollipopPlacement, groupName?: string)
+    private yAxis(y: number,
+                  yMax: number,
+                  ticks: Tick[],
+                  placement?: LollipopPlacement,
+                  groupName?: string,
+                  symbol: string = "#")
     {
         const label = groupName ?
-            `# ${this.props.hugoGeneSymbol} ${groupName} Mutations` :
-            `# ${this.props.hugoGeneSymbol} Mutations`;
+            `${symbol} ${this.props.hugoGeneSymbol} ${groupName} Mutations` :
+            `${symbol} ${this.props.hugoGeneSymbol} Mutations`;
 
         const placeOnBottom = placement === LollipopPlacement.BOTTOM;
 
@@ -510,6 +537,7 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
                 rangeUpper={yMax}
                 ticks={ticks}
                 vertical={true}
+                verticalLabelPadding={this.props.yAxisLabelPadding}
                 reverse={placeOnBottom}
                 label={label}
             />
@@ -637,13 +665,20 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
                     {this.domains}
                     {this.xAxisOnTop && this.xAxis(0, LollipopPlacement.TOP)}
                     {this.xAxisOnBottom && this.xAxis(this.xAxisY, LollipopPlacement.BOTTOM)}
-                    {this.yAxis(this.yAxisY, this.yMax, this.yTicks, LollipopPlacement.TOP, this.topGroupName)}
+                    {this.yAxis(this.yAxisY,
+                        this.yMax,
+                        this.yTicks,
+                        LollipopPlacement.TOP,
+                        this.topGroupName,
+                        this.topGroupSymbol)
+                    }
                     {this.needBottomPlacement &&
                         this.yAxis(this.bottomYAxisY,
                             this.bottomYMax,
                             this.bottomYTicks,
                             LollipopPlacement.BOTTOM,
-                            this.bottomGroupName)
+                            this.bottomGroupName,
+                            this.bottomGroupSymbol)
                     }
                 </svg>
             </div>

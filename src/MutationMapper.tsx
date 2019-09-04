@@ -34,6 +34,17 @@ export type MutationMapperProps = {
     showPlotYMaxSlider?: boolean;
     showPlotLegendToggle?: boolean;
     showPlotDownloadControls?: boolean;
+    plotYMaxFractionDigits?: number;
+    plotYMaxLabelPostfix?: string;
+    plotTopYAxisSymbol?: string;
+    plotBottomYAxisSymbol?: string;
+    plotTopYAxisDefaultMax?: number;
+    plotTopYAxisDefaultMin?: number;
+    plotBottomYAxisDefaultMax?: number;
+    plotBottomYAxisDefaultMin?: number;
+    plotYAxisLabelPadding?: number;
+    plotLollipopTooltipCountInfo?: (count: number, mutations?: Partial<Mutation>[]) => JSX.Element;
+    customControls?: JSX.Element;
     mutationTable?: JSX.Element;
     mutationRates?: MutationRate[];
     pubMedCache?: MobxCache;
@@ -110,6 +121,41 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
     {
         // TODO dummy method for now: move the implementation from cbioportal-frontend
         return {};
+    }
+
+    @computed
+    protected get plotTopYAxisSymbol() {
+        return this.props.plotTopYAxisSymbol;
+    }
+
+    @computed
+    protected get plotYMaxLabelPostfix() {
+        return this.props.plotYMaxLabelPostfix;
+    }
+
+    @computed
+    protected get plotBottomYAxisSymbol() {
+        return this.props.plotBottomYAxisSymbol;
+    }
+
+    @computed
+    protected get plotTopYAxisDefaultMax() {
+        return this.props.plotTopYAxisDefaultMax;
+    }
+
+    @computed
+    protected get plotTopYAxisDefaultMin() {
+        return this.props.plotTopYAxisDefaultMin;
+    }
+
+    @computed
+    protected get plotBottomYAxisDefaultMax() {
+        return this.props.plotBottomYAxisDefaultMax;
+    }
+
+    @computed
+    protected get plotBottomYAxisDefaultMin() {
+        return this.props.plotBottomYAxisDefaultMin;
     }
 
     @computed
@@ -193,6 +239,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 pubMedCache={this.pubMedCache}
                 geneWidth={this.geneWidth}
                 trackVisibility={this.trackVisibility}
+                customControls={this.customControls}
                 tracks={this.props.tracks}
                 showYMaxSlider={this.props.showPlotYMaxSlider}
                 showLegendToggle={this.props.showPlotLegendToggle}
@@ -202,8 +249,23 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 onTrackVisibilityChange={this.props.onTrackVisibilityChange}
                 getMutationCount={this.props.getMutationCount}
                 getLollipopColor={this.props.getLollipopColor}
+                yMaxLabelPostfix={this.plotYMaxLabelPostfix}
+                yMaxFractionDigits={this.props.plotYMaxFractionDigits}
+                yAxisLabelPadding={this.props.plotYAxisLabelPadding}
+                topYAxisSymbol={this.plotTopYAxisSymbol}
+                bottomYAxisSymbol={this.plotBottomYAxisSymbol}
+                topYAxisDefaultMax={this.plotTopYAxisDefaultMax}
+                topYAxisDefaultMin={this.plotBottomYAxisDefaultMin}
+                bottomYAxisDefaultMax={this.plotBottomYAxisDefaultMax}
+                bottomYAxisDefaultMin={this.plotBottomYAxisDefaultMin}
+                lollipopTooltipCountInfo={this.props.plotLollipopTooltipCountInfo}
             />
         );
+    }
+
+    protected get customControls(): JSX.Element | undefined
+    {
+        return this.props.customControls;
     }
 
     protected get geneSummary(): JSX.Element | null
