@@ -36,7 +36,7 @@ export class DataTableToolbar extends React.Component<DataTableToolbarProps, {}>
         return (
             <div
                 className="dataTableMainToolbar"
-                style={{paddingBottom: "0.4rem", display: "flex"}}
+                style={{paddingBottom: "0.4rem", display: "flex", alignItems: "flex-end"}}
             >
                 {this.props.info}
                 {this.props.showColumnVisibility && (
