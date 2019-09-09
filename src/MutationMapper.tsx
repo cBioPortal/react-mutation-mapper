@@ -30,6 +30,7 @@ export type MutationMapperProps = {
     tracks?: TrackName[];
     customMutationTableColumns?: DataTableColumn<Partial<Mutation>>[];
     customMutationTableProps?: Partial<TableProps<Partial<Mutation>>>;
+    showFilterResetPanel?: boolean;
     showPlotYMaxSlider?: boolean;
     showPlotLegendToggle?: boolean;
     showPlotDownloadControls?: boolean;
@@ -66,6 +67,7 @@ export type MutationMapperProps = {
 export default class MutationMapper<P extends MutationMapperProps = MutationMapperProps> extends React.Component<P, {}>
 {
     public static defaultProps: Partial<MutationMapperProps> = {
+        showFilterResetPanel: true,
         showOnlyAnnotatedTranscriptsInDropdown: false,
         showTranscriptDropDown: false,
         filterMutationsBySelectedTranscript: false,
@@ -148,18 +150,22 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
         return this.props.windowWrapper ? this.props.windowWrapper! : getDefaultWindowInstance();
     }
 
-    // TODO for this we need to implement data table items label first
-    // @computed
-    // get multipleMutationInfo(): string {
-    //     const count = this.store.dataStore.duplicateMutationCountInMultipleSamples;
-    //     const mutationsLabel = count === 1 ? "mutation" : "mutations";
-    //
-    //     return count > 0 ? `: includes ${count} duplicate ${mutationsLabel} in patients with multiple samples` : "";
-    // }
-    //
-    // @computed get itemsLabelPlural(): string {
-    //     return `Mutations${this.multipleMutationInfo}`;
-    // }
+    protected get mutationTableInfo(): JSX.Element | undefined {
+        // TODO implement default
+        // @computed
+        // get multipleMutationInfo(): string {
+        //     const count = this.store.dataStore.duplicateMutationCountInMultipleSamples;
+        //     const mutationsLabel = count === 1 ? "mutation" : "mutations";
+        //
+        //     return count > 0 ? `: includes ${count} duplicate ${mutationsLabel} in patients with multiple samples` : "";
+        // }
+        //
+        // @computed get itemsLabelPlural(): string {
+        //     return `Mutations${this.multipleMutationInfo}`;
+        // }
+
+        return undefined;
+    }
 
     protected get mutationTableComponent(): JSX.Element | null
     {
@@ -174,6 +180,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 oncoKbEvidenceCache={this.store.oncoKbEvidenceCache}
                 indexedMyVariantInfoAnnotations={this.store.indexedMyVariantInfoAnnotations}
                 pubMedCache={this.pubMedCache}
+                info={this.mutationTableInfo}
             />
         );
     }
@@ -250,7 +257,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
 
         return (
             <FilterResetPanel
-                mutationsShown={`${tableData.length}/${allData.length}`}
+                filterInfo={`${tableData.length}/${allData.length} mutations are shown based on current filtering.`}
                 resetFilters={this.resetFilters}
             />
         )
@@ -299,7 +306,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
     {
         return this.isLoading ? this.loadingIndicator : (
             <div>
-                {this.isFiltered && this.filterResetPanel}
+                {this.isFiltered && this.props.showFilterResetPanel && this.filterResetPanel}
                 <div style={{ display:'flex' }}>
                     <div className="borderedChart" style={{ marginRight: "1rem" }}>
                         {this.mutationPlot}
