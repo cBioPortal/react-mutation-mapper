@@ -6,29 +6,28 @@ import * as React from 'react';
 import {IProteinImpactTypeColors} from "../../model/ProteinImpact";
 import {DEFAULT_PROTEIN_IMPACT_TYPE_COLORS} from "../../util/MutationUtils";
 import DropdownSelector, {DropdownSelectorProps} from "./DropdownSelector";
+import {getProteinImpactTypeColorMap, getProteinImpactTypeOptionDisplayValueMap} from "./ProteinImpactTypeHelper";
 
-export type ProteinImpactTypeSelectorProps = DropdownSelectorProps &
+export type ProteinImpactTypeDropdownSelectorProps = DropdownSelectorProps &
 {
     colors: IProteinImpactTypeColors;
 };
 
 @observer
-export class ProteinImpactTypeSelector extends React.Component<ProteinImpactTypeSelectorProps, {}>
+export class ProteinImpactTypeDropdownSelector extends React.Component<ProteinImpactTypeDropdownSelectorProps, {}>
 {
-    public static defaultProps: Partial<ProteinImpactTypeSelectorProps> = {
+    public static defaultProps: Partial<ProteinImpactTypeDropdownSelectorProps> = {
         colors: DEFAULT_PROTEIN_IMPACT_TYPE_COLORS
     };
 
     @computed
     protected get optionDisplayValueMap() {
-        const colors = this.props.colors;
+        return getProteinImpactTypeOptionDisplayValueMap(this.proteinImpactTypeColors);
+    }
 
-        return {
-            [ProteinImpactType.MISSENSE]: <strong style={{color: colors.missenseColor}}>Missense</strong>,
-            [ProteinImpactType.TRUNCATING]: <strong style={{color: colors.truncatingColor}}>Truncating</strong>,
-            [ProteinImpactType.INFRAME]: <strong style={{color: colors.inframeColor}}>Inframe</strong>,
-            [ProteinImpactType.OTHER]: <strong style={{color: colors.otherColor}}>Other</strong>
-        };
+    @computed
+    protected get proteinImpactTypeColors() {
+        return getProteinImpactTypeColorMap(this.props.colors);
     }
 
     @computed
@@ -50,4 +49,4 @@ export class ProteinImpactTypeSelector extends React.Component<ProteinImpactType
     }
 }
 
-export default ProteinImpactTypeSelector;
+export default ProteinImpactTypeDropdownSelector;

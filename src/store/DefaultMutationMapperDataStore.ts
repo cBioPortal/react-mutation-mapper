@@ -5,7 +5,10 @@ import {DataFilter, DataFilterType} from "../model/DataFilter";
 import DataStore from "../model/DataStore";
 import {FilterApplier} from "../model/FilterApplier";
 import {Mutation} from "../model/Mutation";
-import {indexPositions} from "../util/FilterUtils";
+import {groupDataByGroupFilters, indexPositions} from "../util/FilterUtils";
+import autobind from "autobind-decorator";
+
+type GroupedData = Array<{group: string, data: Array<Mutation | Mutation[]>}>;
 
 export class DefaultMutationMapperDataStore implements DataStore
 {
@@ -59,14 +62,9 @@ export class DefaultMutationMapperDataStore implements DataStore
     }
 
     @computed
-    public get sortedFilteredGroupedData()
+    public get sortedFilteredGroupedData(): GroupedData
     {
-        return this.groupFilters.map(groupFilter => ({
-            group: groupFilter.group,
-            data: this.sortedFilteredData.filter(
-                // TODO simplify array flatten if possible
-                m => this.applyFilter(groupFilter.filter, _.flatten([m])[0]))
-        }));
+        return groupDataByGroupFilters(this.groupFilters, this, this.applyFilter);
     }
 
     @computed
@@ -165,6 +163,7 @@ export class DefaultMutationMapperDataStore implements DataStore
         );
     }
 
+    @autobind
     public applyFilter(filter: DataFilter, mutation: Mutation): boolean
     {
         if (this.customFilterApplier) {

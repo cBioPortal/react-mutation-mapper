@@ -1,9 +1,8 @@
 import autobind from "autobind-decorator";
-import {getProteinImpactType} from "cbioportal-frontend-commons";
 import MobxPromise from "mobxpromise";
 
 import {HotspotFilter} from "../filter/HotspotFilter";
-import {MutationFilter, MutationFilterValue} from "../filter/MutationFilter";
+import {MutationFilter} from "../filter/MutationFilter";
 import {OncoKbFilter} from "../filter/OncoKbFilter";
 import {PositionFilter} from "../filter/PositionFilter";
 import {ProteinImpactTypeFilter} from "../filter/ProteinImpactTypeFilter";
@@ -13,7 +12,11 @@ import {ApplyFilterFn, FilterApplier} from "../model/FilterApplier";
 import {Mutation} from "../model/Mutation";
 import {IOncoKbData} from "../model/OncoKb";
 import {defaultHotspotFilter, isHotspot} from "../util/CancerHotspotsUtils";
-import {includesSearchTextIgnoreCase} from "../util/FilterUtils";
+import {
+    applyDefaultMutationFilter,
+    applyDefaultPositionFilter,
+    applyDefaultProteinImpactTypeFilter
+} from "../util/FilterUtils";
 import {defaultOncoKbFilter} from "../util/OncoKbUtils";
 
 export class DefaultMutationMapperFilterApplier implements FilterApplier
@@ -51,19 +54,7 @@ export class DefaultMutationMapperFilterApplier implements FilterApplier
     @autobind
     protected applyMutationFilter(filter: MutationFilter, mutation: Mutation)
     {
-        const filterPredicates = filter.values.map((value: MutationFilterValue) => {
-            const valuePredicates = Object.keys(value).map(key =>
-                includesSearchTextIgnoreCase(mutation[key] ? mutation[key].toString() : undefined,
-                    value[key] ? value[key.toString()]: undefined));
-
-            // all predicates should be true in order for a match with a single MutationFilterValue
-            // (multiple values within the same MutationFilterValue are subject to AND)
-            return !valuePredicates.includes(false);
-        });
-
-        // a single true within a set of MutationFilterValues is a match for the entire filter
-        // (multiple MutationFilterValues within the same MutationFilter are subject to OR)
-        return filterPredicates.includes(true);
+        return applyDefaultMutationFilter(filter, mutation);
     }
 
     @autobind
@@ -95,16 +86,13 @@ export class DefaultMutationMapperFilterApplier implements FilterApplier
     @autobind
     protected applyPositionFilter(filter: PositionFilter, mutation: Mutation)
     {
-        // const positions: {[position: string]: {position: number}} = indexPositions([filter]);
-        // return !positions || !!positions[mutation.proteinPosStart+""];
-
-        return filter.values.includes(mutation.proteinPosStart);
+        return applyDefaultPositionFilter(filter, mutation);
     }
 
     @autobind
     protected applyProteinImpactTypeFilter(filter: ProteinImpactTypeFilter, mutation: Mutation)
     {
-        return filter.values.includes(getProteinImpactType(mutation.mutationType || "other"));
+        return applyDefaultProteinImpactTypeFilter(filter, mutation);
     }
 }
 

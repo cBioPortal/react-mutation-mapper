@@ -7,6 +7,7 @@ import * as React from 'react';
 import {components} from "react-select";
 
 import {DataFilter} from "../../model/DataFilter";
+import {getAllOptionValues, getSelectedOptionValues, handleOptionSelect} from "../../util/SelectorUtils";
 
 export type DropdownSelectorProps = {
     name?: string;
@@ -33,16 +34,12 @@ export class DropdownSelector extends React.Component<DropdownSelectorProps, {}>
 
     @computed
     public get allValues() {
-        return (this.props.options || []).map(option => option.value);
+        return getAllOptionValues(this.props.options);
     }
 
     @computed
     public get selectedValues() {
-        return this.allValues
-            .filter(value => !this.props.filter ||
-                this.props.filter.values.find(
-                    filterValue => value.toLowerCase() === filterValue.toLowerCase()))
-            .map(value => ({value}));
+        return getSelectedOptionValues(this.allValues, this.props.filter);
     }
 
     @computed
@@ -115,9 +112,7 @@ export class DropdownSelector extends React.Component<DropdownSelectorProps, {}>
     @autobind
     @action
     private onChange(values: Array<{value: string}>) {
-        if (this.props.onSelect) {
-            this.props.onSelect(values.map(o => o.value), this.allValues.length === values.length);
-        }
+        handleOptionSelect(values, this.allValues, this.props.onSelect);
     }
 }
 
