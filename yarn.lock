@@ -3076,10 +3076,10 @@ caseless@~0.12.0:
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
-cbioportal-frontend-commons@^0.0.19:
-  version "0.0.19"
-  resolved "https://registry.yarnpkg.com/cbioportal-frontend-commons/-/cbioportal-frontend-commons-0.0.19.tgz#be9066f939d6713883c2876913cabc49922dc613"
-  integrity sha512-0PUOGoH8qj87OdTVGlO6aQWrnEi7OGdb0YPl0DrARHxCz24LOcho8Ikp7I94rGl2FMY+0I5ATipO6DJ9sU5Syg==
+cbioportal-frontend-commons@^0.0.20:
+  version "0.0.20"
+  resolved "https://registry.yarnpkg.com/cbioportal-frontend-commons/-/cbioportal-frontend-commons-0.0.20.tgz#4104bd93eb5f6022c04beaac260751ce5619f905"
+  integrity sha512-+skFkpi6xL993xqaPzZugNGVdZRJcNV9HL4i9yhkLMU0fghWeaQFMBLZnZyVgCIyjijloBMGRV6f+i0LBYDguA==
   dependencies:
     autobind-decorator "^2.1.0"
     babel-polyfill "^6.22.0"

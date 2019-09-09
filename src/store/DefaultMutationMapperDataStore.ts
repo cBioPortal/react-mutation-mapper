@@ -1,3 +1,4 @@
+import autobind from "autobind-decorator";
 import _ from "lodash";
 import {action, computed, observable} from "mobx";
 
@@ -6,7 +7,6 @@ import DataStore from "../model/DataStore";
 import {FilterApplier} from "../model/FilterApplier";
 import {Mutation} from "../model/Mutation";
 import {groupDataByGroupFilters, indexPositions} from "../util/FilterUtils";
-import autobind from "autobind-decorator";
 
 type GroupedData = Array<{group: string, data: Array<Mutation | Mutation[]>}>;
 
