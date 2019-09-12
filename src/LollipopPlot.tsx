@@ -18,9 +18,14 @@ export type LollipopPlotProps = {
     xMax: number;
     yMax?: number;
     bottomYMax?: number;
+    yMaxFractionDigits?: number;
+    yMaxLabelPostfix?: string;
+    yAxisLabelPadding?: number;
     xAxisOnTop?: boolean;
     xAxisOnBottom?: boolean;
     groups?: string[];
+    topYAxisSymbol?: string;
+    bottomYAxisSymbol?: string;
     hugoGeneSymbol: string;
     dataStore: DataStore;
     onXAxisOffset?: (offset: number) => void;

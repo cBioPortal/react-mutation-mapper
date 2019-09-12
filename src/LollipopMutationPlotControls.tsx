@@ -1,11 +1,13 @@
 import {DownloadControls, EditableSpan} from "cbioportal-frontend-commons";
 import classnames from "classnames";
 import * as React from "react";
+import Slider from 'react-rangeslider'
 import {computed} from "mobx";
 import {observer} from "mobx-react";
 
 import TrackSelector, {TrackDataStatus, TrackName, TrackVisibility} from "./TrackSelector";
 
+import "react-rangeslider/lib/index.css";
 import styles from "./lollipopMutationPlot.module.scss";
 
 
@@ -22,9 +24,13 @@ type LollipopMutationPlotControlsProps = {
     onYMaxInputBlurred: () => void;
     onToggleLegend: () => void;
     yMaxSlider: number;
+    yMaxSliderStep: number;
     yMaxInput: number;
+    yMaxFractionDigits?: number;
     bottomYMaxSlider?: number;
+    bottomYMaxSliderStep: number;
     bottomYMaxInput?: number;
+    customControls?: JSX.Element;
     tracks?: TrackName[];
     trackVisibility?: TrackVisibility;
     trackDataStatus?: TrackDataStatus;
@@ -35,13 +41,24 @@ type LollipopMutationPlotControlsProps = {
     getSVG: () => SVGElement;
 };
 
+function formatSliderValue(value: number, step: number, coeff: number, fractionDigits: number = 4)
+{
+    return step < 1 ? Number(value.toFixed(fractionDigits))  + coeff * step: value;
+}
+
+function formatInputValue(value: number, step: number, fractionDigits: number = 4)
+{
+    return step < 1 ? value.toFixed(fractionDigits): value.toString();
+}
+
 @observer
 export default class LollipopMutationPlotControls extends React.Component<LollipopMutationPlotControlsProps, {}>
 {
     public static defaultProps: Partial<LollipopMutationPlotControlsProps> = {
         showYMaxSlider: true,
         showLegendToggle: true,
-        showDownloadControls: true
+        showDownloadControls: true,
+        yMaxFractionDigits: 2
     };
 
     @computed
@@ -61,31 +78,37 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
                              yMaxSlider: number,
                              yMaxInput: number,
                              label: string = "Y-Axis Max",
-                             width: number = 100)
+                             width: number = 100,
+                             yMaxSliderStep: number = 1)
     {
         return (
             <div className="small" style={{display: "flex", alignItems: "center", marginLeft: 10}}>
                 <span>{label}:</span>
-                <input
+                <div
                     style={{
-                        display: "inline-block",
-                        padding: 0,
                         width: width,
                         marginLeft: 10,
                         marginRight: 10
                     }}
-                    type="range"
-                    min={countRange[0]}
-                    max={countRange[1]}
-                    step="1"
-                    onChange={onYAxisMaxSliderChange}
-                    value={yMaxSlider}
-                />
+                >
+                    <Slider
+                        min={Math.max(0,
+                            formatSliderValue(countRange[0], yMaxSliderStep, -1, this.props.yMaxFractionDigits))
+                        }
+                        max={
+                            formatSliderValue(countRange[1], yMaxSliderStep, 1, this.props.yMaxFractionDigits)
+                        }
+                        tooltip={false}
+                        step={yMaxSliderStep}
+                        onChange={onYAxisMaxSliderChange}
+                        value={yMaxSlider}
+                    />
+                </div>
                 <EditableSpan
                     className={styles["ymax-number-input"]}
-                    value={`${yMaxInput}`}
+                    value={formatInputValue(yMaxInput, yMaxSliderStep, this.props.yMaxFractionDigits)}
                     setValue={onYAxisMaxChange}
-                    numericOnly={true}
+                    numericOnly={yMaxSliderStep >= 1}
                     onFocus={this.props.onYMaxInputFocused}
                     onBlur={this.props.onYMaxInputBlurred}
                 />
@@ -102,7 +125,8 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
             this.props.yMaxSlider,
             this.props.yMaxInput,
             this.showBottomYAxisSlider ? "Top Y-Axis Max" : "Y-Axis Max",
-            this.showBottomYAxisSlider ? 100 : 200);
+            this.showBottomYAxisSlider ? 100 : 200,
+            this.props.yMaxSliderStep);
     }
 
     protected get bottomYMaxSlider()
@@ -115,7 +139,9 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
                 this.props.onBottomYAxisMaxChange!,
                 this.props.bottomYMaxSlider!,
                 this.props.bottomYMaxInput!,
-                "Bottom Y-Axis Max");
+                "Bottom Y-Axis Max",
+                100,
+                this.props.bottomYMaxSliderStep);
         }
         else {
             return null;
@@ -175,6 +201,7 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
                     {this.props.trackVisibility && this.props.onTrackVisibilityChange && this.trackSelector}
                     {this.props.showYMaxSlider && this.yMaxSlider}
                     {this.props.showYMaxSlider && this.bottomYMaxSlider}
+                    {this.props.customControls}
                     <div style={{display: "flex", marginLeft: "auto"}}>
                         {this.props.showLegendToggle && this.legendToggle}
                         {this.props.showDownloadControls && this.downloadControls}

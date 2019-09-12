@@ -61,31 +61,34 @@ export function lollipopLabelTextAnchor(labelText: string,
     return anchor;
 }
 
-export function getYAxisMaxSliderValue(event: any, countRange: [number, number])
+export function getYAxisMaxSliderValue(value: number, countRange: [number, number])
 {
-    const inputValue: string = (event.target as HTMLInputElement).value;
-    const value = parseInt(inputValue, 10);
-
     return value < countRange[0] ? countRange[0] : value;
 }
 
 export function getYAxisMaxInputValue(input: string, countRange: [number, number])
 {
-    const value = parseInt(input, 10);
+    const value = parseFloat(input);
     return value < countRange[0] ? countRange[0] : value;
 }
 
-export function calcCountRange(lollipops: LollipopSpec[]): [number, number]
+export function calcCountRange(lollipops: LollipopSpec[],
+                               defaultMax: number = 5,
+                               defaultMin: number = 1): [number, number]
 {
     if (lollipops.length === 0) {
         return [0,0];
-    } else {
-        let max = 5;
-        let min = 1;
+    }
+    else
+    {
+        let max = defaultMax;
+        let min = defaultMin;
+
         for (const lollipop of lollipops) {
             max = Math.max(max, lollipop.count);
             min = Math.min(min, lollipop.count);
         }
-        return [min, max];
+
+        return [min, Math.max(min, max)];
     }
 }
