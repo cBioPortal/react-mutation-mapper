@@ -57,7 +57,7 @@ export * from "./component/ColumnSelector";
 export * from "./component/FilterResetPanel";
 export * from "./component/StatusHelpers";
 
-export {default as DataTable, DataTableColumn} from "./DataTable";
+export {default as DataTable, ColumnSortDirection, DataTableColumn} from "./DataTable";
 export {default as DefaultMutationTable} from "./DefaultMutationTable";
 export * from "./MutationColumnHelper";
 export {default as Domain} from "./Domain";
