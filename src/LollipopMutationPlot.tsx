@@ -174,7 +174,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
         // now we decide whether we'll show a label at all
         const maxAllowedTies = 2;
         const maxLabels = 1;
-        const minMutationsToShowLabel = 1;
+        const minMutationsToShowLabel = 0;
 
         let numLabelsToShow;
         if (numLabelCandidates > maxLabels && // if there are more candidates than we can show,
@@ -204,7 +204,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                 continue;
             }
             let label: {text: string, textAnchor?: string, fontSize?: number, fontFamily?: string} | undefined;
-            if (i < numLabelsToShow && mutationCount >= minMutationsToShowLabel) {
+            if (i < numLabelsToShow && mutationCount > minMutationsToShowLabel) {
                 const fontSize = 10;
                 const fontFamily = "arial";
                 // limit number of protein changes to 3
