@@ -4,8 +4,16 @@ export {
     sortValue as hotspotAnnotationSortValue
 } from "./component/column/HotspotAnnotation";
 export {
+    default as Gnomad,
     sortValue as gnomadSortValue
 } from "./component/column/Gnomad";
+export {
+    default as MutationStatus
+} from "./component/column/MutationStatus";
+export {
+    default as ProteinChange,
+    proteinChangeSortMethod
+} from "./component/column/ProteinChange";
 
 export {
     default as DropdownSelector,
@@ -49,8 +57,9 @@ export * from "./component/ColumnSelector";
 export * from "./component/FilterResetPanel";
 export * from "./component/StatusHelpers";
 
-export {default as DataTable, DataTableColumn} from "./DataTable";
-export {default as DefaultMutationTable, MutationColumn, MutationColumnName} from "./DefaultMutationTable";
+export {default as DataTable, ColumnSortDirection, DataTableColumn} from "./DataTable";
+export {default as DefaultMutationTable} from "./DefaultMutationTable";
+export * from "./MutationColumnHelper";
 export {default as Domain} from "./Domain";
 export {default as HotspotInfo} from "./HotspotInfo";
 export {default as Lollipop} from "./Lollipop";

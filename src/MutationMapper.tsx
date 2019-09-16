@@ -13,7 +13,7 @@ import MutationMapperStore from "./model/MutationMapperStore";
 import DefaultMutationMapperStore from "./store/DefaultMutationMapperStore";
 import {initDefaultTrackVisibility} from "./util/TrackUtils";
 import {getDefaultWindowInstance} from "./util/DefaultWindowInstance";
-import {DataTableColumn} from "./DataTable";
+import {ColumnSortDirection, DataTableColumn} from "./DataTable";
 import DefaultMutationRateSummary, {MutationRate} from "./DefaultMutationRateSummary";
 import DefaultMutationTable from "./DefaultMutationTable";
 import GeneSummary from "./GeneSummary";
@@ -46,6 +46,8 @@ export type MutationMapperProps = {
     plotLollipopTooltipCountInfo?: (count: number, mutations?: Partial<Mutation>[]) => JSX.Element;
     customControls?: JSX.Element;
     mutationTable?: JSX.Element;
+    mutationTableInitialSortColumn?: string;
+    mutationTableInitialSortDirection?: ColumnSortDirection;
     mutationRates?: MutationRate[];
     pubMedCache?: MobxCache;
     // TODO annotateMutations?: boolean;
@@ -219,6 +221,8 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
             <DefaultMutationTable
                 dataStore={this.store.dataStore}
                 columns={this.props.customMutationTableColumns}
+                initialSortColumn={this.props.mutationTableInitialSortColumn}
+                initialSortDirection={this.props.mutationTableInitialSortDirection}
                 reactTableProps={this.props.customMutationTableProps}
                 hotspotData={this.store.indexedHotspotData}
                 oncoKbData={this.store.oncoKbData}

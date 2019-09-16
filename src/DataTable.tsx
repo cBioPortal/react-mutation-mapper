@@ -24,6 +24,11 @@ export type DataTableColumn<T> = Column<T> & {
     searchable?: boolean;
 }
 
+export enum ColumnSortDirection {
+    ASC = "asc",
+    DESC = "desc"
+}
+
 export type DataTableProps<T> =
 {
     data?: T[];
@@ -34,7 +39,7 @@ export type DataTableProps<T> =
 
     initialSortColumnData?: (RemoteData<any>|undefined)[];
     initialSortColumn?: string;
-    initialSortDirection?: 'asc'|'desc';
+    initialSortDirection?: ColumnSortDirection;
     initialItemsPerPage?: number;
 
     highlightColorLight?: string;
@@ -75,7 +80,7 @@ export default class DataTable<T> extends React.Component<DataTableProps<T>, {}>
 {
     public static defaultProps = {
         data: [],
-        initialSortDirection: "desc",
+        initialSortDirection: ColumnSortDirection.DESC,
         initialItemsPerPage: 10,
         highlightColorLight: "#B0BED9",
         highlightColorDark: "#9FAFD1"
@@ -160,7 +165,7 @@ export default class DataTable<T> extends React.Component<DataTableProps<T>, {}>
         else {
             return [{
                 id: initialSortColumn,
-                desc: initialSortDirection === 'desc'
+                desc: initialSortDirection === ColumnSortDirection.DESC
             }];
         }
     }
