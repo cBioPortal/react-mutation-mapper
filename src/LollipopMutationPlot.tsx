@@ -8,12 +8,14 @@ import {Collapse} from "react-collapse";
 import $ from "jquery";
 
 import {DomainSpec} from "./model/DomainSpec";
+import {LollipopPlotControlsConfig} from "./model/LollipopPlotControlsConfig";
 import {LollipopPlacement, LollipopSpec} from "./model/LollipopSpec";
 import {MobxCache} from "./model/MobxCache";
 import {Mutation} from "./model/Mutation";
 import {MutationMapperStore} from "./model/MutationMapperStore";
 import {PfamDomain, PfamDomainRange} from "./model/Pfam";
 import {SequenceSpec} from "./model/SequenceSpec";
+import {DefaultLollipopPlotControlsConfig} from "./store/DefaultLollipopPlotControlsConfig";
 import {
     calcCountRange,
     getYAxisMaxInputValue,
@@ -36,6 +38,7 @@ const DEFAULT_PROTEIN_LENGTH = 10;
 
 export type LollipopMutationPlotProps = {
     store: MutationMapperStore;
+    controlsConfig?: LollipopPlotControlsConfig;
     pubMedCache?: MobxCache;
     getLollipopColor?: (mutations: Partial<Mutation>[]) => string;
     getMutationCount?: (mutation: Partial<Mutation>) => number;
@@ -73,9 +76,6 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
     };
 
     @observable private mouseInPlot:boolean = true;
-    @observable private _yMaxInput: number | undefined;
-    @observable private _bottomYMaxInput: number | undefined;
-    @observable private legendShown:boolean = false;
     @observable private yMaxInputFocused:boolean = false;
     @observable private geneXOffset:number;
     @observable private _trackVisibility: TrackVisibility = initDefaultTrackVisibility();
@@ -89,6 +89,10 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
 
     @computed private get trackVisibility(): TrackVisibility {
         return this.props.trackVisibility || this._trackVisibility;
+    }
+
+    @computed private get controlsConfig(): LollipopPlotControlsConfig {
+        return this.props.controlsConfig || new DefaultLollipopPlotControlsConfig();
     }
 
     private lollipopTooltip(mutationsAtPosition:Mutation[],
@@ -384,16 +388,16 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
 
         this.handlers = {
             handleYAxisMaxSliderChange: action(
-                (value: number) => this._yMaxInput = getYAxisMaxSliderValue(value, this.countRange)
+                (value: number) => this.controlsConfig.yMaxInput = getYAxisMaxSliderValue(value, this.countRange)
             ),
             handleYAxisMaxChange: action(
-                (input: string) => this._yMaxInput = getYAxisMaxInputValue(input, this.countRange)
+                (input: string) => this.controlsConfig.yMaxInput = getYAxisMaxInputValue(input, this.countRange)
             ),
             handleBottomYAxisMaxSliderChange: action(
-                (value: number) => this._bottomYMaxInput= getYAxisMaxSliderValue(value, this.bottomCountRange)
+                (value: number) => this.controlsConfig.bottomYMaxInput = getYAxisMaxSliderValue(value, this.bottomCountRange)
             ),
             handleBottomYAxisMaxChange: action(
-                (input: string) => this._bottomYMaxInput = getYAxisMaxInputValue(input, this.bottomCountRange)
+                (input: string) => this.controlsConfig.bottomYMaxInput = getYAxisMaxInputValue(input, this.bottomCountRange)
             ),
             onYMaxInputFocused:()=>{
                 this.yMaxInputFocused = true;
@@ -402,7 +406,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                 this.yMaxInputFocused = false;
             },
             handleToggleLegend: action(()=>{
-                this.legendShown = !this.legendShown;
+                this.controlsConfig.legendShown = !this.controlsConfig.legendShown;
             }),
             onMouseEnterPlot: action(()=>{ this.mouseInPlot = true;}),
             onMouseLeavePlot: action(()=>{ this.mouseInPlot = false;})
@@ -411,7 +415,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
 
     @computed get yMaxSlider() {
         // we don't want max slider value to go over the actual max, even if the user input goes over it
-        return Math.min(this.countRange[1], this._yMaxInput || this.countRange[1]);
+        return Math.min(this.countRange[1], this.controlsConfig.yMaxInput || this.countRange[1]);
     }
 
     @computed get yMaxSliderStep() {
@@ -420,7 +424,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
 
     @computed get bottomYMaxSlider() {
         // we don't want max slider value to go over the actual max, even if the user input goes over it
-        return Math.min(this.bottomCountRange[1], this._bottomYMaxInput || this.bottomCountRange[1]);
+        return Math.min(this.bottomCountRange[1], this.controlsConfig .bottomYMaxInput || this.bottomCountRange[1]);
     }
 
     @computed get bottomYMaxSliderStep() {
@@ -429,12 +433,12 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
 
     @computed get yMaxInput() {
         // allow the user input value to go over the actual count range
-        return this._yMaxInput === undefined ? this.countRange[1]: this._yMaxInput;
+        return this.controlsConfig.yMaxInput === undefined ? this.countRange[1]: this.controlsConfig.yMaxInput;
     }
 
     @computed get bottomYMaxInput() {
         // allow the user input value to go over the actual count range
-        return this._bottomYMaxInput === undefined ? this.bottomCountRange[1]: this._bottomYMaxInput;
+        return this.controlsConfig.bottomYMaxInput === undefined ? this.bottomCountRange[1]: this.controlsConfig.bottomYMaxInput;
     }
 
     @autobind
@@ -505,7 +509,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                         onTrackVisibilityChange={this.onTrackVisibilityChange}
                         getSVG={this.getSVG}
                     />
-                    <Collapse isOpened={this.legendShown}>
+                    <Collapse isOpened={this.controlsConfig.legendShown}>
                         {this.props.legend || <DefaultLollipopPlotLegend />}
                     </Collapse>
                     <LollipopPlot

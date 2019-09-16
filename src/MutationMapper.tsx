@@ -7,6 +7,7 @@ import {DefaultPubMedCache} from "./cache/DefaultPubMedCache";
 import FilterResetPanel from "./component/FilterResetPanel";
 import {DataFilter} from "./model/DataFilter";
 import {ApplyFilterFn, FilterApplier} from "./model/FilterApplier";
+import {LollipopPlotControlsConfig} from "./model/LollipopPlotControlsConfig";
 import {MobxCache} from "./model/MobxCache";
 import {Mutation} from "./model/Mutation";
 import MutationMapperStore from "./model/MutationMapperStore";
@@ -19,12 +20,14 @@ import DefaultMutationTable from "./DefaultMutationTable";
 import GeneSummary from "./GeneSummary";
 import LollipopMutationPlot from "./LollipopMutationPlot";
 import {TrackDataStatus, TrackName, TrackVisibility} from "./TrackSelector";
+import {DefaultLollipopPlotControlsConfig} from "./store/DefaultLollipopPlotControlsConfig";
 
 export type MutationMapperProps = {
     hugoSymbol?: string;
     entrezGeneId?: number;
     data?: Partial<Mutation>[];
     store?: MutationMapperStore;
+    lollipopPlotControlsConfig?: LollipopPlotControlsConfig;
     windowWrapper?: {size: {width: number, height: number}};
     trackVisibility?: TrackVisibility;
     tracks?: TrackName[];
@@ -189,6 +192,11 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
         );
     }
 
+    @computed
+    protected get lollipopPlotControlsConfig(): LollipopPlotControlsConfig {
+        return this.props.lollipopPlotControlsConfig ? this.props.lollipopPlotControlsConfig!: new DefaultLollipopPlotControlsConfig();
+    }
+
     protected get pubMedCache() {
         return this.props.pubMedCache || new DefaultPubMedCache();
     }
@@ -240,6 +248,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
         return (
             <LollipopMutationPlot
                 store={this.store}
+                controlsConfig={this.lollipopPlotControlsConfig}
                 pubMedCache={this.pubMedCache}
                 geneWidth={this.geneWidth}
                 trackVisibility={this.trackVisibility}
