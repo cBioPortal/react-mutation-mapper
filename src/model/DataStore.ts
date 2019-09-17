@@ -18,6 +18,7 @@ export interface DataStore {
     groupFilters: {group: string, filter: DataFilter}[];
     isPositionSelected: (position: number) => boolean;
     isPositionHighlighted: (position: number) => boolean;
+    dataMainFilter: (datum: any) => boolean;
     dataSelectFilter: (datum: any) => boolean;
     dataHighlightFilter: (datum: any) => boolean;
     applyFilter: (filter: DataFilter, datum: any, positions?: {[position: string]: {position: number}}) => boolean;

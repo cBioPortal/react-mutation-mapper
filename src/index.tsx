@@ -102,6 +102,7 @@ export * from "./util/DataFetcherUtils";
 export * from "./util/FilterUtils";
 export * from "./util/FormatUtils";
 export * from "./util/MutationAnnotator";
+export * from "./util/ReactTableUtils";
 export {
     MUTATION_TYPE_PRIORITY,
     genomicLocationString,

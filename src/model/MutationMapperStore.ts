@@ -25,6 +25,7 @@ export interface MutationMapperStore {
     transcriptsByTranscriptId: {[transcriptId: string]: EnsemblTranscript};
     mutationsByPosition: {[pos: number]: Mutation[]};
     groupedMutationsByPosition: {group: string, mutations : {[pos: number]: Mutation[]}}[];
+    mutationCountsByProteinImpactType: {[proteinImpactType: string] : number};
     uniqueMutationCountsByPosition: {[pos: number]: number};
     uniqueGroupedMutationCountsByPosition: {group: string, counts: {[pos: number]: number}}[];
     ptmDataByProteinPosStart: RemoteData<{[pos: number]: PostTranslationalModification[]} | undefined>;
