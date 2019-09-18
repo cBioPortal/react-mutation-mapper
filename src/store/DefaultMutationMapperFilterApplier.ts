@@ -3,6 +3,7 @@ import MobxPromise from "mobxpromise";
 
 import {HotspotFilter} from "../filter/HotspotFilter";
 import {MutationFilter} from "../filter/MutationFilter";
+import {MutationStatusFilter} from "../filter/MutationStatusFilter";
 import {OncoKbFilter} from "../filter/OncoKbFilter";
 import {PositionFilter} from "../filter/PositionFilter";
 import {ProteinImpactTypeFilter} from "../filter/ProteinImpactTypeFilter";
@@ -14,6 +15,7 @@ import {IOncoKbData} from "../model/OncoKb";
 import {defaultHotspotFilter, isHotspot} from "../util/CancerHotspotsUtils";
 import {
     applyDefaultMutationFilter,
+    applyDefaultMutationStatusFilter,
     applyDefaultPositionFilter,
     applyDefaultProteinImpactTypeFilter
 } from "../util/FilterUtils";
@@ -29,6 +31,7 @@ export class DefaultMutationMapperFilterApplier implements FilterApplier
             [DataFilterType.HOTSPOT]: this.applyHostpotFilter,
             [DataFilterType.MUTATION]: this.applyMutationFilter,
             [DataFilterType.PROTEIN_IMPACT_TYPE]: this.applyProteinImpactTypeFilter,
+            [DataFilterType.MUTATION_STATUS]: this.applyMutationStatusFilter,
             ...this.filterAppliersOverride
         };
     };
@@ -93,6 +96,12 @@ export class DefaultMutationMapperFilterApplier implements FilterApplier
     protected applyProteinImpactTypeFilter(filter: ProteinImpactTypeFilter, mutation: Mutation)
     {
         return applyDefaultProteinImpactTypeFilter(filter, mutation);
+    }
+
+    @autobind
+    protected applyMutationStatusFilter(filter: MutationStatusFilter, mutation: Mutation)
+    {
+        return applyDefaultMutationStatusFilter(filter, mutation);
     }
 }
 

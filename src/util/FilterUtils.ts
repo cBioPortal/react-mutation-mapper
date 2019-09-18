@@ -2,6 +2,7 @@ import {getProteinImpactType, ProteinImpactType} from "cbioportal-frontend-commo
 import _ from "lodash";
 
 import {MutationFilter, MutationFilterValue} from "../filter/MutationFilter";
+import {MutationStatusFilter} from "../filter/MutationStatusFilter";
 import {PositionFilter} from "../filter/PositionFilter";
 import {ProteinImpactTypeFilter} from "../filter/ProteinImpactTypeFilter";
 import DataStore from "../model/DataStore";
@@ -101,6 +102,11 @@ export function applyDefaultPositionFilter(filter: PositionFilter, mutation: Mut
 export function applyDefaultProteinImpactTypeFilter(filter: ProteinImpactTypeFilter, mutation: Mutation)
 {
     return filter.values.includes(getProteinImpactType(mutation.mutationType || "other"));
+}
+
+export function applyDefaultMutationStatusFilter(filter: MutationStatusFilter, mutation: Mutation)
+{
+    return mutation.mutationStatus !== undefined && filter.values.includes(mutation.mutationStatus);
 }
 
 export function applyDefaultMutationFilter(filter: MutationFilter, mutation: Mutation)
