@@ -23,6 +23,7 @@ import {
     indexHotspotsData
 } from "../util/CancerHotspotsUtils";
 import {ONCOKB_DEFAULT_DATA} from "../util/DataFetcherUtils";
+import {groupDataByProteinImpactType} from "../util/FilterUtils";
 import {getMutationsToTranscriptId} from "../util/MutationAnnotator";
 import {genomicLocationString, groupMutationsByProteinStartPos, uniqueGenomicLocations} from "../util/MutationUtils";
 import {
@@ -184,6 +185,25 @@ class DefaultMutationMapperStore implements MutationMapperStore
                 mutations: groupMutationsByProteinStartPos(_.flatten(groupedData.data))
             })
         );
+    }
+
+    @computed
+    protected get mutationsGroupedByProteinImpactType() {
+        return groupDataByProteinImpactType(this.dataStore);
+    }
+
+    @computed
+    public get mutationCountsByProteinImpactType(): {[proteinImpactType: string] : number}
+    {
+        const map: {[proteinImpactType: string] : number} = {};
+
+        Object.keys(this.mutationsGroupedByProteinImpactType)
+            .forEach(proteinImpactType => {
+                const g = this.mutationsGroupedByProteinImpactType[proteinImpactType];
+                map[g.group] = g.data.length;
+            });
+
+        return map;
     }
 
     @computed

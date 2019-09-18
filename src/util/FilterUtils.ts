@@ -146,3 +146,29 @@ export function groupDataByProteinImpactType(dataStore: DataStore)
 
     return _.keyBy(groupedData, d => d.group);
 }
+
+export function onFilterOptionSelect(selectedValues: string[],
+                                     allValuesSelected: boolean,
+                                     dataStore: DataStore,
+                                     dataFilterType: string,
+                                     dataFilterId: string)
+{
+    // all other filters except the current filter with the given data filter id
+    const otherFilters = dataStore.dataFilters.filter((f: DataFilter) => f.id !== dataFilterId);
+
+    if (allValuesSelected) {
+        // if all values are selected just remove the existing filter with the given data filter id
+        // (assuming that no filtering required if everything is selected)
+        dataStore.setDataFilters(otherFilters);
+    }
+    else {
+        const dataFilter = {
+            id: dataFilterId,
+            type: dataFilterType,
+            values: selectedValues
+        };
+
+        // replace the existing data filter wrt the current selection (other filters + new data filter)
+        dataStore.setDataFilters([...otherFilters, dataFilter]);
+    }
+}

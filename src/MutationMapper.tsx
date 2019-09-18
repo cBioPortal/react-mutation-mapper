@@ -11,6 +11,7 @@ import {LollipopPlotControlsConfig} from "./model/LollipopPlotControlsConfig";
 import {MobxCache} from "./model/MobxCache";
 import {Mutation} from "./model/Mutation";
 import MutationMapperStore from "./model/MutationMapperStore";
+import {DefaultLollipopPlotControlsConfig} from "./store/DefaultLollipopPlotControlsConfig";
 import DefaultMutationMapperStore from "./store/DefaultMutationMapperStore";
 import {initDefaultTrackVisibility} from "./util/TrackUtils";
 import {getDefaultWindowInstance} from "./util/DefaultWindowInstance";
@@ -20,7 +21,6 @@ import DefaultMutationTable from "./DefaultMutationTable";
 import GeneSummary from "./GeneSummary";
 import LollipopMutationPlot from "./LollipopMutationPlot";
 import {TrackDataStatus, TrackName, TrackVisibility} from "./TrackSelector";
-import {DefaultLollipopPlotControlsConfig} from "./store/DefaultLollipopPlotControlsConfig";
 
 export type MutationMapperProps = {
     hugoSymbol?: string;
