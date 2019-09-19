@@ -7,6 +7,7 @@ import {CSSProperties} from "react";
 
 import {DataFilter} from "../../model/DataFilter";
 import {getAllOptionValues, getSelectedOptionValues, handleOptionSelect} from "../../util/SelectorUtils";
+import {BadgeLabel} from "./BadgeLabel";
 
 export type BadgeSelectorOption = {
     value: string;
@@ -30,10 +31,6 @@ export type BadgeSelectorProps = {
 @observer
 export class BadgeSelector extends React.Component<BadgeSelectorProps, {}>
 {
-    public static defaultProps: Partial<BadgeSelectorProps> = {
-        badgeClassName: "badge",
-    };
-
     @computed
     public get allValues() {
         return getAllOptionValues(this.props.options);
@@ -49,20 +46,12 @@ export class BadgeSelector extends React.Component<BadgeSelectorProps, {}>
         return (this.props.options || [])
             .map(option => ({
                 label:
-                    <span>
-                        {option.label || option.value}
-                        <span
-                            className={this.props.badgeClassName}
-                            style={{
-                                color: "#FFF",
-                                backgroundColor: "#000",
-                                marginLeft: 5,
-                                ...option.badgeStyleOverride
-                            }}
-                        >
-                            {option.badgeContent}
-                        </span>
-                    </span>,
+                    <BadgeLabel
+                        label={option.label || option.value}
+                        badgeContent={option.badgeContent}
+                        badgeStyleOverride={option.badgeStyleOverride}
+                        badgeClassName={this.props.badgeClassName}
+                    />,
                 value: option.value
             }));
     }

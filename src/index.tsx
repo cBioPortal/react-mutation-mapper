@@ -20,6 +20,9 @@ export {
     DropdownSelectorProps
 } from "./component/filter/DropdownSelector";
 export {
+    default as BadgeLabel
+} from "./component/filter/BadgeLabel";
+export {
     default as BadgeSelector,
     BadgeSelectorProps
 } from "./component/filter/BadgeSelector";
