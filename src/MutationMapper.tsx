@@ -1,6 +1,7 @@
 import {action, computed, observable} from "mobx";
 import {observer} from "mobx-react";
 import * as React from "react";
+import {ReactNode} from "react";
 import {TableProps} from "react-table";
 
 import {DefaultPubMedCache} from "./cache/DefaultPubMedCache";
@@ -97,7 +98,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
     protected lollipopPlotGeneX: number | undefined;
 
     @computed
-    protected get geneWidth()
+    protected get geneWidth(): number
     {
         if (this.lollipopPlotGeneX) {
             return this.windowWrapper.size.width * 0.7 - this.lollipopPlotGeneX;
@@ -129,37 +130,37 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
     }
 
     @computed
-    protected get plotTopYAxisSymbol() {
+    protected get plotTopYAxisSymbol(): string | undefined {
         return this.props.plotTopYAxisSymbol;
     }
 
     @computed
-    protected get plotYMaxLabelPostfix() {
+    protected get plotYMaxLabelPostfix(): string | undefined {
         return this.props.plotYMaxLabelPostfix;
     }
 
     @computed
-    protected get plotBottomYAxisSymbol() {
+    protected get plotBottomYAxisSymbol(): string | undefined {
         return this.props.plotBottomYAxisSymbol;
     }
 
     @computed
-    protected get plotTopYAxisDefaultMax() {
+    protected get plotTopYAxisDefaultMax(): number | undefined {
         return this.props.plotTopYAxisDefaultMax;
     }
 
     @computed
-    protected get plotTopYAxisDefaultMin() {
+    protected get plotTopYAxisDefaultMin(): number | undefined {
         return this.props.plotTopYAxisDefaultMin;
     }
 
     @computed
-    protected get plotBottomYAxisDefaultMax() {
+    protected get plotBottomYAxisDefaultMax(): number | undefined {
         return this.props.plotBottomYAxisDefaultMax;
     }
 
     @computed
-    protected get plotBottomYAxisDefaultMin() {
+    protected get plotBottomYAxisDefaultMin(): number | undefined {
         return this.props.plotBottomYAxisDefaultMin;
     }
 
@@ -197,8 +198,8 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
         return this.props.lollipopPlotControlsConfig ? this.props.lollipopPlotControlsConfig!: new DefaultLollipopPlotControlsConfig();
     }
 
-    protected get pubMedCache() {
-        return this.props.pubMedCache || new DefaultPubMedCache();
+    protected get pubMedCache(): MobxCache {
+        return this.props.pubMedCache ? this.props.pubMedCache!: new DefaultPubMedCache();
     }
 
     @computed
@@ -206,7 +207,8 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
         return this.props.windowWrapper ? this.props.windowWrapper! : getDefaultWindowInstance();
     }
 
-    protected get mutationTableInfo(): JSX.Element | undefined {
+    protected get mutationTableInfo(): JSX.Element | undefined
+    {
         // TODO implement default
         // @computed
         // get multipleMutationInfo(): string {
@@ -313,11 +315,11 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
         return this.mutationRates ? <DefaultMutationRateSummary rates={this.mutationRates!} /> : null;
     }
 
-    protected get isFiltered() {
+    protected get isFiltered(): boolean {
         return this.store.dataStore.selectionFilters.length > 0 || this.store.dataStore.dataFilters.length > 0;
     }
 
-    protected get isMutationTableDataLoading()
+    protected get isMutationTableDataLoading(): boolean
     {
         // Child classes should override this method
         return false;
@@ -365,19 +367,20 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
         return null;
     }
 
-    protected get isMutationPlotDataLoading() {
+    protected get isMutationPlotDataLoading(): boolean {
         return this.store.pfamDomainData.isPending;
     }
 
-    protected get isLoading() {
+    protected get isLoading(): boolean {
         return this.store.mutationData.isPending || this.isMutationPlotDataLoading || this.isMutationTableDataLoading;
     }
 
-    protected get loadingIndicator() {
-        return this.props.mainLoadingIndicator || <i className="fa fa-spinner fa-pulse fa-2x" />;
+    protected get loadingIndicator(): JSX.Element {
+        return this.props.mainLoadingIndicator ?
+            this.props.mainLoadingIndicator!: <i className="fa fa-spinner fa-pulse fa-2x" />;
     }
 
-    public render()
+    public render(): ReactNode
     {
         return this.isLoading ? this.loadingIndicator : (
             <div>
