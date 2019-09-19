@@ -55,6 +55,10 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
     private geneHeight = 14;
     private domainHeight = 24;
 
+    public static defaultProps: Partial<LollipopPlotNoTooltipProps> = {
+        showYAxis: true
+    };
+
     @autobind
     protected ref(svg:SVGElement){
         this.svg = svg;
@@ -665,14 +669,14 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
                     {this.domains}
                     {this.xAxisOnTop && this.xAxis(0, LollipopPlacement.TOP)}
                     {this.xAxisOnBottom && this.xAxis(this.xAxisY, LollipopPlacement.BOTTOM)}
-                    {this.yAxis(this.yAxisY,
+                    {this.props.showYAxis && this.yAxis(this.yAxisY,
                         this.yMax,
                         this.yTicks,
                         LollipopPlacement.TOP,
                         this.topGroupName,
                         this.topGroupSymbol)
                     }
-                    {this.needBottomPlacement &&
+                    {this.props.showYAxis && this.needBottomPlacement &&
                         this.yAxis(this.bottomYAxisY,
                             this.bottomYMax,
                             this.bottomYTicks,

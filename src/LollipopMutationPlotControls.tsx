@@ -34,6 +34,7 @@ type LollipopMutationPlotControlsProps = {
     tracks?: TrackName[];
     trackVisibility?: TrackVisibility;
     trackDataStatus?: TrackDataStatus;
+    showTrackSelector?: boolean;
     showYMaxSlider?: boolean;
     showLegendToggle?: boolean;
     showDownloadControls?: boolean;
@@ -55,6 +56,7 @@ function formatInputValue(value: number, step: number, fractionDigits: number = 
 export default class LollipopMutationPlotControls extends React.Component<LollipopMutationPlotControlsProps, {}>
 {
     public static defaultProps: Partial<LollipopMutationPlotControlsProps> = {
+        showTrackSelector: true,
         showYMaxSlider: true,
         showLegendToggle: true,
         showDownloadControls: true,
@@ -198,7 +200,7 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
                     this.props.showControls ? styles["fade-in"] : styles["fade-out"])}
             >
                 <div style={{display:"flex", alignItems:"center"}}>
-                    {this.props.trackVisibility && this.props.onTrackVisibilityChange && this.trackSelector}
+                    {this.props.trackVisibility && this.props.onTrackVisibilityChange && this.props.showTrackSelector && this.trackSelector}
                     {this.props.showYMaxSlider && this.yMaxSlider}
                     {this.props.showYMaxSlider && this.bottomYMaxSlider}
                     {this.props.customControls}

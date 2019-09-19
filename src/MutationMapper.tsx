@@ -33,9 +33,11 @@ export type MutationMapperProps = {
     windowWrapper?: {size: {width: number, height: number}};
     trackVisibility?: TrackVisibility;
     tracks?: TrackName[];
+    showTrackSelector?: boolean;
     mutationTableColumns?: DataTableColumn<Partial<Mutation>>[];
     customMutationTableProps?: Partial<TableProps<Partial<Mutation>>>;
     showFilterResetPanel?: boolean;
+    showPlotYAxis?: boolean;
     showPlotYMaxSlider?: boolean;
     showPlotLegendToggle?: boolean;
     showPlotDownloadControls?: boolean;
@@ -49,6 +51,7 @@ export type MutationMapperProps = {
     plotBottomYAxisDefaultMin?: number;
     plotYAxisLabelPadding?: number;
     plotLollipopTooltipCountInfo?: (count: number, mutations?: Partial<Mutation>[]) => JSX.Element;
+    plotLollipopHeight?: number;
     customControls?: JSX.Element;
     mutationTable?: JSX.Element;
     mutationTableInitialSortColumn?: string;
@@ -269,6 +272,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 showLegendToggle={this.props.showPlotLegendToggle}
                 showDownloadControls={this.props.showPlotDownloadControls}
                 trackDataStatus={this.trackDataStatus}
+                showTrackSelector={this.props.showTrackSelector}
                 onXAxisOffset={this.onXAxisOffset}
                 onTrackVisibilityChange={this.props.onTrackVisibilityChange}
                 getMutationCount={this.props.getMutationCount}
@@ -276,12 +280,14 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 yMaxLabelPostfix={this.plotYMaxLabelPostfix}
                 yMaxFractionDigits={this.props.plotYMaxFractionDigits}
                 yAxisLabelPadding={this.props.plotYAxisLabelPadding}
+                showYAxis={this.props.showPlotYAxis}
                 topYAxisSymbol={this.plotTopYAxisSymbol}
                 bottomYAxisSymbol={this.plotBottomYAxisSymbol}
                 topYAxisDefaultMax={this.plotTopYAxisDefaultMax}
                 topYAxisDefaultMin={this.plotBottomYAxisDefaultMin}
                 bottomYAxisDefaultMax={this.plotBottomYAxisDefaultMax}
                 bottomYAxisDefaultMin={this.plotBottomYAxisDefaultMin}
+                plotLollipopHeight={this.props.plotLollipopHeight}
                 lollipopTooltipCountInfo={this.props.plotLollipopTooltipCountInfo}
             />
         );
