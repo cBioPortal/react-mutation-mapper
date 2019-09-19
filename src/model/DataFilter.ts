@@ -4,7 +4,8 @@ export enum DataFilterType {
     POSITION = "position",
     MUTATION = "mutation",
     CANCER_TYPE = "cancerType",
-    PROTEIN_IMPACT_TYPE = "proteinImpactType"
+    PROTEIN_IMPACT_TYPE = "proteinImpactType",
+    MUTATION_STATUS = "mutationStatus"
 }
 
 export type DataFilter<T = any> = {
