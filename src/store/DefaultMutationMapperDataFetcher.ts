@@ -5,7 +5,6 @@ import Response = request.Response;
 import {
     EnsemblFilter,
     generatePartialEvidenceQuery,
-    generateQueryVariant,
     GenomeNexusAPI,
     GenomeNexusAPIInternal,
     GenomicLocation,
@@ -32,6 +31,7 @@ import {
 } from "../util/DataFetcherUtils";
 import {getMyVariantInfoAnnotationsFromIndexedVariantAnnotations} from "../util/VariantAnnotationUtils";
 import {uniqueGenomicLocations} from "../util/MutationUtils";
+import {getEvidenceQuery} from "../util/OncoKbUtils";
 
 export interface MutationMapperDataFetcherConfig {
     myGeneUrlTemplate?: string;
@@ -211,15 +211,11 @@ export class DefaultMutationMapperDataFetcher
 
         const mutationsToQuery = _.filter(mutations, m => !!annotatedGenes[getEntrezGeneId(m)]);
         const queryVariants = _.uniqBy(_.map(mutationsToQuery, (mutation: Mutation) => {
-            return generateQueryVariant(
-                // mutation.gene.entrezGeneId,
-                getEntrezGeneId(mutation),
-                // cancerTypeForOncoKb(mutation.uniqueSampleKey, uniqueSampleKeyToTumorType),
-                getTumorType(mutation),
-                mutation.proteinChange,
-                mutation.mutationType,
-                mutation.proteinPosStart,
-                mutation.proteinPosEnd) as Query;
+            return getEvidenceQuery(
+                mutation,
+                getEntrezGeneId, // mutation.gene.entrezGeneId
+                getTumorType // cancerTypeForOncoKb(mutation.uniqueSampleKey, uniqueSampleKeyToTumorType)
+            ) as Query;
         }), "id");
 
         return this.queryOncoKbData(queryVariants, evidenceTypes, client);
