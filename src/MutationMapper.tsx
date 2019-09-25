@@ -22,6 +22,7 @@ import DefaultMutationTable from "./DefaultMutationTable";
 import GeneSummary from "./GeneSummary";
 import LollipopMutationPlot from "./LollipopMutationPlot";
 import {TrackDataStatus, TrackName, TrackVisibility} from "./TrackSelector";
+import {DEFAULT_MUTATION_COLUMNS} from ".";
 
 export type MutationMapperProps = {
     hugoSymbol?: string;
@@ -32,7 +33,7 @@ export type MutationMapperProps = {
     windowWrapper?: {size: {width: number, height: number}};
     trackVisibility?: TrackVisibility;
     tracks?: TrackName[];
-    customMutationTableColumns?: DataTableColumn<Partial<Mutation>>[];
+    mutationTableColumns?: DataTableColumn<Partial<Mutation>>[];
     customMutationTableProps?: Partial<TableProps<Partial<Mutation>>>;
     showFilterResetPanel?: boolean;
     showPlotYMaxSlider?: boolean;
@@ -225,24 +226,32 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
         return undefined;
     }
 
-    protected get mutationTableComponent(): JSX.Element | null
-    {
-        return this.props.mutationTable ? this.props.mutationTable! : (
-            <DefaultMutationTable
-                dataStore={this.store.dataStore}
-                columns={this.props.customMutationTableColumns}
-                initialSortColumn={this.props.mutationTableInitialSortColumn}
-                initialSortDirection={this.props.mutationTableInitialSortDirection}
-                reactTableProps={this.props.customMutationTableProps}
-                hotspotData={this.store.indexedHotspotData}
-                oncoKbData={this.store.oncoKbData}
-                oncoKbCancerGenes={this.store.oncoKbCancerGenes}
-                oncoKbEvidenceCache={this.store.oncoKbEvidenceCache}
-                indexedMyVariantInfoAnnotations={this.store.indexedMyVariantInfoAnnotations}
-                pubMedCache={this.pubMedCache}
-                info={this.mutationTableInfo}
-            />
-        );
+    protected get mutationTableComponent(): JSX.Element | null {
+        if (this.props.mutationTable) {
+            return this.props.mutationTable!;
+        } else {
+            let columns: DataTableColumn<Partial<Mutation>>[] = DEFAULT_MUTATION_COLUMNS;
+            if (this.props.mutationTableColumns) {
+                columns = this.props.mutationTableColumns!;
+            }
+
+            return (
+                <DefaultMutationTable
+                    dataStore={this.store.dataStore}
+                    columns={columns}
+                    initialSortColumn={this.props.mutationTableInitialSortColumn}
+                    initialSortDirection={this.props.mutationTableInitialSortDirection}
+                    reactTableProps={this.props.customMutationTableProps}
+                    hotspotData={this.store.indexedHotspotData}
+                    oncoKbData={this.store.oncoKbData}
+                    oncoKbCancerGenes={this.store.oncoKbCancerGenes}
+                    oncoKbEvidenceCache={this.store.oncoKbEvidenceCache}
+                    indexedMyVariantInfoAnnotations={this.store.indexedMyVariantInfoAnnotations}
+                    pubMedCache={this.pubMedCache}
+                    info={this.mutationTableInfo}
+                />
+            );
+        }
     }
 
     protected get mutationPlot(): JSX.Element | null

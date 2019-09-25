@@ -102,13 +102,13 @@ export const MUTATION_COLUMN_HEADERS = {
  * These default columns only include static props.
  * So, for some columns, like Annotation, no default accessor or Cell (render) properties included.
  */
-export const DEFAULT_MUTATION_COLUMNS = {
+export const MUTATION_COLUMNS_DEFINITION = {
     [MutationColumn.PROTEIN_CHANGE]: {
         id: MutationColumn.PROTEIN_CHANGE,
         name: MutationColumnName.PROTEIN_CHANGE,
         accessor: MutationColumn.PROTEIN_CHANGE,
         searchable: true,
-        Cell: (column: any) => <ProteinChange mutation={column.original} />,
+        Cell: (column: any) => <ProteinChange mutation={column.original}/>,
         Header: MUTATION_COLUMN_HEADERS[MutationColumn.PROTEIN_CHANGE],
         sortMethod: proteinChangeSortMethod
     },
@@ -123,7 +123,7 @@ export const DEFAULT_MUTATION_COLUMNS = {
         name: MutationColumnName.MUTATION_TYPE,
         accessor: MutationColumn.MUTATION_TYPE,
         searchable: true,
-        Cell: (column: any) => <MutationType mutation={column.original} />,
+        Cell: (column: any) => <MutationType mutation={column.original}/>,
         Header: MUTATION_COLUMN_HEADERS[MutationColumn.MUTATION_TYPE]
     },
     [MutationColumn.MUTATION_STATUS]: {
@@ -131,7 +131,7 @@ export const DEFAULT_MUTATION_COLUMNS = {
         name: MutationColumnName.MUTATION_STATUS,
         accessor: MutationColumn.MUTATION_STATUS,
         searchable: true,
-        Cell: (column: any) => <MutationStatus mutation={column.original} />,
+        Cell: (column: any) => <MutationStatus mutation={column.original}/>,
         Header: MUTATION_COLUMN_HEADERS[MutationColumn.MUTATION_STATUS]
     },
     [MutationColumn.CHROMOSOME]: {
@@ -187,6 +187,18 @@ export const DEFAULT_MUTATION_COLUMNS = {
         sortMethod: clinVarSortMethod
     }
 };
+
+export const DEFAULT_MUTATION_COLUMNS = [
+    MUTATION_COLUMNS_DEFINITION[MutationColumn.PROTEIN_CHANGE],
+    MUTATION_COLUMNS_DEFINITION[MutationColumn.MUTATION_TYPE],
+    MUTATION_COLUMNS_DEFINITION[MutationColumn.MUTATION_STATUS],
+    MUTATION_COLUMNS_DEFINITION[MutationColumn.CHROMOSOME],
+    MUTATION_COLUMNS_DEFINITION[MutationColumn.START_POSITION],
+    MUTATION_COLUMNS_DEFINITION[MutationColumn.END_POSITION],
+    MUTATION_COLUMNS_DEFINITION[MutationColumn.REFERENCE_ALLELE],
+    MUTATION_COLUMNS_DEFINITION[MutationColumn.VARIANT_ALLELE],
+    MUTATION_COLUMNS_DEFINITION[MutationColumn.CLINVAR]
+];
 
 export function mergeColumns(defaultColumns: Column<Partial<Mutation>>[],
                              customColumns: Column<Partial<Mutation>>[])
