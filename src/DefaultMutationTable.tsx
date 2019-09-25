@@ -7,9 +7,7 @@ import {Column} from "react-table";
 
 import Annotation, {getAnnotationData} from "./component/column/Annotation";
 import ClinVar from "./component/column/ClinVar";
-import Gnomad, {
-    getMyVariantInfoData
-} from "./component/column/Gnomad";
+import Gnomad, {getMyVariantInfoData} from "./component/column/Gnomad";
 import {MutationFilterValue} from "./filter/MutationFilter";
 import {IHotspotIndex} from "./model/CancerHotspot";
 import {DataFilterType} from "./model/DataFilter";
@@ -21,7 +19,7 @@ import {SimpleCache} from "./model/SimpleCache";
 import {findNonTextInputFilters, TEXT_INPUT_FILTER_ID} from "./util/FilterUtils";
 import {getRemoteDataGroupStatus} from "./util/RemoteDataUtils";
 import DataTable, {DataTableColumn, DataTableProps} from "./DataTable";
-import {mergeColumns, DEFAULT_MUTATION_COLUMNS, MutationColumn} from "./MutationColumnHelper";
+import {MutationColumn} from "./MutationColumnHelper";
 
 import './defaultMutationTable.scss';
 
@@ -32,7 +30,7 @@ export type DefaultMutationTableProps = {
     indexedMyVariantInfoAnnotations?: RemoteData<{[genomicLocation: string]: MyVariantInfo} | undefined>;
     oncoKbEvidenceCache?: SimpleCache;
     pubMedCache?: MobxCache;
-    columns?: Column<Partial<Mutation>>[];
+    columns: Column<Partial<Mutation>>[];
     appendColumns?: boolean;
 } & DataTableProps<Partial<Mutation>>;
 
@@ -92,30 +90,23 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
         return this.props.initialSortColumnData || this.annotationColumnData;
     }
 
-    @computed
-    get mergedColumns() {
-        return this.props.columns ? mergeColumns(this.defaultColumns, this.props.columns) : this.defaultColumns;
-    }
-
-    @computed
-    get columns() {
-        // TODO allow inserting columns into any arbitrary position (not just at the end of the list)
-        if (this.props.columns) {
-            return this.props.appendColumns ? this.mergedColumns : this.props.columns;
-        }
-        else {
-            return this.defaultColumns;
+    getDefaultColumnAccessor(columnKey: MutationColumn) {
+        switch (columnKey) {
+            case MutationColumn.ANNOTATION:
+                return this.annotationColumnAccessor;
+            case MutationColumn.CLINVAR:
+                return this.myVariantInfoAccessor;
+            case MutationColumn.VARIANT_ALLELE:
+                return this.myVariantInfoAccessor;
+            default:
+                return undefined;
         }
     }
 
-    @computed
-    get defaultColumns() {
-        return [
-            DEFAULT_MUTATION_COLUMNS[MutationColumn.PROTEIN_CHANGE],
-            {
-                ...DEFAULT_MUTATION_COLUMNS[MutationColumn.ANNOTATION],
-                accessor: this.annotationColumnAccessor,
-                Cell: (column: any) =>
+    getDefaultColumnCellRender(columnKey: MutationColumn) {
+        switch (columnKey) {
+            case MutationColumn.ANNOTATION:
+                return (column: any) =>
                     <Annotation
                         mutation={column.original}
                         enableOncoKb={true}
@@ -125,34 +116,41 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                         oncoKbCancerGenes={this.props.oncoKbCancerGenes}
                         oncoKbEvidenceCache={this.props.oncoKbEvidenceCache}
                         pubMedCache={this.props.pubMedCache}
-                    />
-            },
-            DEFAULT_MUTATION_COLUMNS[MutationColumn.MUTATION_TYPE],
-            DEFAULT_MUTATION_COLUMNS[MutationColumn.MUTATION_STATUS],
-            DEFAULT_MUTATION_COLUMNS[MutationColumn.CHROMOSOME],
-            DEFAULT_MUTATION_COLUMNS[MutationColumn.START_POSITION],
-            DEFAULT_MUTATION_COLUMNS[MutationColumn.END_POSITION],
-            DEFAULT_MUTATION_COLUMNS[MutationColumn.REFERENCE_ALLELE],
-            DEFAULT_MUTATION_COLUMNS[MutationColumn.VARIANT_ALLELE],
-            {
-                ...DEFAULT_MUTATION_COLUMNS[MutationColumn.GNOMAD],
-                accessor: this.myVariantInfoAccessor,
-                Cell: (column: any) =>
+                    />;
+            case MutationColumn.VARIANT_ALLELE:
+                return (column: any) =>
                     <Gnomad
                         mutation={column.original}
                         indexedMyVariantInfoAnnotations={this.props.indexedMyVariantInfoAnnotations}
-                    />
-            },
-            {
-                ...DEFAULT_MUTATION_COLUMNS[MutationColumn.CLINVAR],
-                accessor: this.myVariantInfoAccessor,
-                Cell: (column: any) =>
+                    />;
+            case MutationColumn.CLINVAR:
+                return (column: any) =>
                     <ClinVar
                         mutation={column.original}
                         indexedMyVariantInfoAnnotations={this.props.indexedMyVariantInfoAnnotations}
-                    />
+                    />;
+            default:
+                return undefined;
+        }
+    }
+
+    @computed
+    get columns() {
+        return this.props.columns.map(column => {
+            if (!column.accessor) {
+                const defaultAccessor = this.getDefaultColumnAccessor(column.id as MutationColumn);
+                if (defaultAccessor) {
+                    column.accessor = defaultAccessor;
+                }
             }
-        ];
+            if (!column.Cell) {
+                const defaultCellRender = this.getDefaultColumnCellRender(column.id as MutationColumn);
+                if (defaultCellRender) {
+                    column.Cell = defaultCellRender;
+                }
+            }
+            return column;
+        });
     }
 
     public render() {
