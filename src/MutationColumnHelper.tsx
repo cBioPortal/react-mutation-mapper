@@ -39,43 +39,65 @@ export enum MutationColumnName {
     CLINVAR = "ClinVar ID"
 }
 
+export function rightAlignedCell(cellProps: any) {
+    return <span className="pull-right">{cellProps.value}</span>;
+}
+
 export const MUTATION_COLUMN_HEADERS = {
     [MutationColumn.PROTEIN_CHANGE]: (
-        <ColumnHeader headerContent={<span>{MutationColumnName.PROTEIN_CHANGE}</span>} />
+        <ColumnHeader
+            headerContent={<span className="pull-left">{MutationColumnName.PROTEIN_CHANGE}</span>}
+        />
     ),
     [MutationColumn.ANNOTATION]: (
-        <ColumnHeader headerContent={<span>{MutationColumnName.ANNOTATION}</span>} />
+        <ColumnHeader
+            headerContent={<span className="pull-left">{MutationColumnName.ANNOTATION}</span>}
+        />
     ),
     [MutationColumn.MUTATION_STATUS]: (
-        <ColumnHeader headerContent={<span>{MutationColumnName.MUTATION_STATUS}</span>} />
+        <ColumnHeader
+            headerContent={<span className="pull-left">{MutationColumnName.MUTATION_STATUS}</span>}
+        />
     ),
     [MutationColumn.MUTATION_TYPE]: (
-        <ColumnHeader headerContent={<span>{MutationColumnName.MUTATION_TYPE}</span>} />
+        <ColumnHeader
+            headerContent={<span className="pull-left">{MutationColumnName.MUTATION_TYPE}</span>}
+        />
     ),
     [MutationColumn.CHROMOSOME]: (
-        <ColumnHeader headerContent={<span>{MutationColumnName.CHROMOSOME}</span>} />
+        <ColumnHeader
+            headerContent={<span className="pull-right">{MutationColumnName.CHROMOSOME}</span>}
+        />
     ),
     [MutationColumn.START_POSITION]: (
-        <ColumnHeader headerContent={<span>{MutationColumnName.START_POSITION}</span>} />
+        <ColumnHeader
+            headerContent={<span className="pull-right">{MutationColumnName.START_POSITION}</span>}
+        />
     ),
     [MutationColumn.END_POSITION]: (
-        <ColumnHeader headerContent={<span>{MutationColumnName.END_POSITION}</span>} />
+        <ColumnHeader
+            headerContent={<span className="pull-right">{MutationColumnName.END_POSITION}</span>}
+        />
     ),
     [MutationColumn.REFERENCE_ALLELE]: (
         <ColumnHeader
-            headerContent={<span>{MutationColumnName.REFERENCE_ALLELE}</span>}
+            headerContent={<span className="pull-left">{MutationColumnName.REFERENCE_ALLELE}</span>}
             overlay={<span>Reference Allele</span>}
         />
     ),
     [MutationColumn.VARIANT_ALLELE]: (
         <ColumnHeader
-            headerContent={<span>{MutationColumnName.VARIANT_ALLELE}</span>}
+            headerContent={<span className="pull-left">{MutationColumnName.VARIANT_ALLELE}</span>}
             overlay={<span>Variant Allele</span>}
         />
     ),
     [MutationColumn.GNOMAD]: (
         <ColumnHeader
-            headerContent={<span>{MutationColumnName.GNOMAD} <i className="fa fa-info-circle" /></span>}
+            headerContent={
+                <span className="pull-right">
+                    {MutationColumnName.GNOMAD} <i className="fa fa-info-circle" />
+                </span>
+            }
             overlay={
                 <span>
                     <a href="https://gnomad.broadinstitute.org/" target="_blank">gnomAD</a> population allele frequencies.
@@ -87,7 +109,11 @@ export const MUTATION_COLUMN_HEADERS = {
     ),
     [MutationColumn.CLINVAR]: (
         <ColumnHeader
-            headerContent={<span>{MutationColumnName.CLINVAR} <i className="fa fa-info-circle" /></span>}
+            headerContent={
+                <span className="pull-right">
+                    {MutationColumnName.CLINVAR} <i className="fa fa-info-circle" />
+                </span>
+            }
             overlay={
                 <span>
                     <a href="https://www.ncbi.nlm.nih.gov/clinvar/" target="_blank">ClinVar</a> aggregates
@@ -139,6 +165,7 @@ export const MUTATION_COLUMNS_DEFINITION = {
         name: MutationColumnName.CHROMOSOME,
         accessor: MutationColumn.CHROMOSOME,
         searchable: true,
+        Cell: rightAlignedCell,
         Header: MUTATION_COLUMN_HEADERS[MutationColumn.CHROMOSOME],
         show: false
     },
@@ -147,6 +174,7 @@ export const MUTATION_COLUMNS_DEFINITION = {
         name: MutationColumnName.START_POSITION,
         accessor: MutationColumn.START_POSITION,
         searchable: true,
+        Cell: rightAlignedCell,
         Header: MUTATION_COLUMN_HEADERS[MutationColumn.START_POSITION],
         show: false
     },
@@ -155,6 +183,7 @@ export const MUTATION_COLUMNS_DEFINITION = {
         name: MutationColumnName.END_POSITION,
         accessor: MutationColumn.END_POSITION,
         searchable: true,
+        Cell: rightAlignedCell,
         Header: MUTATION_COLUMN_HEADERS[MutationColumn.END_POSITION],
         show: false
     },
