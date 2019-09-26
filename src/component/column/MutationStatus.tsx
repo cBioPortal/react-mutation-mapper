@@ -9,6 +9,7 @@ type MutationStatusProps = {
     mutation?: Mutation;
     displayValueMap?: {[mutationStatus: string]: string};
     enableTooltip?: boolean;
+    styleMap?: {[mutationStatus: string]: React.CSSProperties};
 };
 
 export default class MutationStatus extends React.Component<MutationStatusProps, {}>
@@ -26,7 +27,11 @@ export default class MutationStatus extends React.Component<MutationStatusProps,
             if (value.toLowerCase().includes("somatic"))
             {
                 content = (
-                    <span className={styles.somatic}>
+                    <span
+                        className={styles.somatic}
+                        style={this.props.styleMap ?
+                            this.props.styleMap[value.toLowerCase()]: undefined}
+                    >
                         {
                             (this.props.displayValueMap && (
                                 this.props.displayValueMap[value.toLowerCase()] || this.props.displayValueMap["somatic"]
@@ -39,7 +44,11 @@ export default class MutationStatus extends React.Component<MutationStatusProps,
             else if (value.toLowerCase().includes("germline"))
             {
                 content = (
-                    <span className={styles.germline}>
+                    <span
+                        className={styles.germline}
+                        style={this.props.styleMap ?
+                            this.props.styleMap[value.toLowerCase()]: undefined}
+                    >
                         {
                             (this.props.displayValueMap && (
                                 this.props.displayValueMap[value.toLowerCase()] || this.props.displayValueMap["germline"]
