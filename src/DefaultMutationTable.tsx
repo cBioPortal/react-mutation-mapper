@@ -90,20 +90,20 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
         return this.props.initialSortColumnData || this.annotationColumnData;
     }
 
-    getDefaultColumnAccessor(columnKey: MutationColumn) {
+    protected getDefaultColumnAccessor(columnKey: MutationColumn) {
         switch (columnKey) {
             case MutationColumn.ANNOTATION:
                 return this.annotationColumnAccessor;
             case MutationColumn.CLINVAR:
                 return this.myVariantInfoAccessor;
-            case MutationColumn.VARIANT_ALLELE:
+            case MutationColumn.GNOMAD:
                 return this.myVariantInfoAccessor;
             default:
                 return undefined;
         }
     }
 
-    getDefaultColumnCellRender(columnKey: MutationColumn) {
+    protected getDefaultColumnCellRender(columnKey: MutationColumn) {
         switch (columnKey) {
             case MutationColumn.ANNOTATION:
                 return (column: any) =>
@@ -117,7 +117,7 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                         oncoKbEvidenceCache={this.props.oncoKbEvidenceCache}
                         pubMedCache={this.props.pubMedCache}
                     />;
-            case MutationColumn.VARIANT_ALLELE:
+            case MutationColumn.GNOMAD:
                 return (column: any) =>
                     <Gnomad
                         mutation={column.original}
@@ -136,7 +136,11 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
 
     @computed
     get columns() {
-        return this.props.columns.map(column => {
+        return this.props.columns.map(c => {
+            // we need to clone the column definition first,
+            // directly modifying the props.columns breaks certain column functionality
+            const column = {...c};
+
             if (!column.accessor) {
                 const defaultAccessor = this.getDefaultColumnAccessor(column.id as MutationColumn);
                 if (defaultAccessor) {
