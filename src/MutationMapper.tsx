@@ -21,8 +21,8 @@ import DefaultMutationRateSummary, {MutationRate} from "./DefaultMutationRateSum
 import DefaultMutationTable from "./DefaultMutationTable";
 import GeneSummary from "./GeneSummary";
 import LollipopMutationPlot from "./LollipopMutationPlot";
+import {DEFAULT_MUTATION_COLUMNS} from "./MutationColumnHelper";
 import {TrackDataStatus, TrackName, TrackVisibility} from "./TrackSelector";
-import {DEFAULT_MUTATION_COLUMNS} from ".";
 
 export type MutationMapperProps = {
     hugoSymbol?: string;
