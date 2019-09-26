@@ -21,6 +21,7 @@ export type LollipopPlotProps = {
     yMaxFractionDigits?: number;
     yMaxLabelPostfix?: string;
     yAxisLabelPadding?: number;
+    showYAxis?: boolean;
     xAxisOnTop?: boolean;
     xAxisOnBottom?: boolean;
     groups?: string[];
@@ -37,6 +38,10 @@ export default class LollipopPlot extends React.Component<LollipopPlotProps, {}>
 
     private plot: LollipopPlotNoTooltip|undefined;
     private handlers: any;
+
+    public static defaultProps: Partial<LollipopPlotProps> = {
+        vizHeight: 200
+    };
 
     constructor(props: LollipopPlotProps) {
         super(props);

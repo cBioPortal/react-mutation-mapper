@@ -48,9 +48,11 @@ export type LollipopMutationPlotProps = {
     topYAxisDefaultMin?: number;
     yMaxFractionDigits?: number;
     yMaxLabelPostfix?: string;
+    showYAxis?: boolean;
     bottomYAxisDefaultMax?: number;
     bottomYAxisDefaultMin?: number;
     yAxisLabelPadding?: number;
+    plotLollipopHeight?: number;
     lollipopTooltipCountInfo?: (count: number, mutations?: Partial<Mutation>[]) => JSX.Element;
     customControls?: JSX.Element;
     onXAxisOffset?: (offset:number) => void;
@@ -58,6 +60,7 @@ export type LollipopMutationPlotProps = {
     trackVisibility?: TrackVisibility;
     tracks?: TrackName[];
     trackDataStatus?: TrackDataStatus;
+    showTrackSelector?: boolean;
     onTrackVisibilityChange?: (selectedTrackIds: string[]) => void;
     autoHideControls?: boolean;
     showYMaxSlider?: boolean;
@@ -506,6 +509,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                         trackVisibility={this.trackVisibility}
                         tracks={this.props.tracks}
                         trackDataStatus={this.props.trackDataStatus}
+                        showTrackSelector={this.props.showTrackSelector}
                         onTrackVisibilityChange={this.onTrackVisibilityChange}
                         getSVG={this.getSVG}
                     />
@@ -518,7 +522,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                         domains={this.domains}
                         dataStore={this.props.store.dataStore}
                         vizWidth={this.props.geneWidth}
-                        vizHeight={200}
+                        vizHeight={this.props.plotLollipopHeight}
                         hugoGeneSymbol={this.hugoGeneSymbol}
                         xMax={this.proteinLength}
                         yMax={this.yMaxInput}
@@ -527,6 +531,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                         }
                         yMaxLabelPostfix={this.props.yMaxLabelPostfix}
                         yAxisLabelPadding={this.props.yAxisLabelPadding}
+                        showYAxis={this.props.showYAxis}
                         bottomYMax={this.bottomYMaxInput}
                         onXAxisOffset={this.onXAxisOffset}
                         topYAxisSymbol={this.props.topYAxisSymbol}
