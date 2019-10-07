@@ -5,6 +5,7 @@ import Slider from 'react-rangeslider'
 import {computed} from "mobx";
 import {observer} from "mobx-react";
 
+import {getYAxisMaxSliderValue} from "./util/LollipopPlotUtils";
 import TrackSelector, {TrackDataStatus, TrackName, TrackVisibility} from "./TrackSelector";
 
 import "react-rangeslider/lib/index.css";
@@ -26,7 +27,6 @@ type LollipopMutationPlotControlsProps = {
     yMaxSlider: number;
     yMaxSliderStep: number;
     yMaxInput: number;
-    yMaxFractionDigits?: number;
     bottomYMaxSlider?: number;
     bottomYMaxSliderStep: number;
     bottomYMaxInput?: number;
@@ -42,16 +42,6 @@ type LollipopMutationPlotControlsProps = {
     getSVG: () => SVGElement;
 };
 
-function formatSliderValue(value: number, step: number, coeff: number, fractionDigits: number = 4)
-{
-    return step < 1 ? Number(value.toFixed(fractionDigits))  + coeff * step: value;
-}
-
-function formatInputValue(value: number, step: number, fractionDigits: number = 4)
-{
-    return step < 1 ? value.toFixed(fractionDigits): value.toString();
-}
-
 @observer
 export default class LollipopMutationPlotControls extends React.Component<LollipopMutationPlotControlsProps, {}>
 {
@@ -59,8 +49,7 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
         showTrackSelector: true,
         showYMaxSlider: true,
         showLegendToggle: true,
-        showDownloadControls: true,
-        yMaxFractionDigits: 2
+        showDownloadControls: true
     };
 
     @computed
@@ -94,12 +83,8 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
                     }}
                 >
                     <Slider
-                        min={Math.max(0,
-                            formatSliderValue(countRange[0], yMaxSliderStep, -1, this.props.yMaxFractionDigits))
-                        }
-                        max={
-                            formatSliderValue(countRange[1], yMaxSliderStep, 1, this.props.yMaxFractionDigits)
-                        }
+                        min={yMaxSliderStep}
+                        max={getYAxisMaxSliderValue(yMaxSliderStep, countRange)}
                         tooltip={false}
                         step={yMaxSliderStep}
                         onChange={onYAxisMaxSliderChange}
@@ -108,7 +93,7 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
                 </div>
                 <EditableSpan
                     className={styles["ymax-number-input"]}
-                    value={formatInputValue(yMaxInput, yMaxSliderStep, this.props.yMaxFractionDigits)}
+                    value={`${yMaxInput}`}
                     setValue={onYAxisMaxChange}
                     numericOnly={yMaxSliderStep >= 1}
                     onFocus={this.props.onYMaxInputFocused}

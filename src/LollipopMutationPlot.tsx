@@ -18,8 +18,8 @@ import {SequenceSpec} from "./model/SequenceSpec";
 import {DefaultLollipopPlotControlsConfig} from "./store/DefaultLollipopPlotControlsConfig";
 import {
     calcCountRange,
-    getYAxisMaxInputValue,
     getYAxisMaxSliderValue,
+    getYAxisMaxInputValue,
     lollipopLabelText,
     lollipopLabelTextAnchor
 } from "./util/LollipopPlotUtils";
@@ -75,7 +75,7 @@ export type LollipopMutationPlotProps = {
 export default class LollipopMutationPlot extends React.Component<LollipopMutationPlotProps, {}>
 {
     public static defaultProps: Partial<LollipopMutationPlotProps> = {
-        yMaxFractionDigits: 2
+        yMaxFractionDigits: 1
     };
 
     @observable private mouseInPlot:boolean = true;
@@ -319,8 +319,8 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
 
     @computed private get domainMap(): {[pfamAccession:string]: PfamDomain}
     {
-        if (!this.props.store.pfamDomainData.isPending && 
-            this.props.store.pfamDomainData.result && 
+        if (!this.props.store.pfamDomainData.isPending &&
+            this.props.store.pfamDomainData.result &&
             this.props.store.pfamDomainData.result.length > 0) {
             return _.keyBy(this.props.store.pfamDomainData.result, 'pfamAccession');
         }
@@ -391,16 +391,18 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
 
         this.handlers = {
             handleYAxisMaxSliderChange: action(
-                (value: number) => this.controlsConfig.yMaxInput = getYAxisMaxSliderValue(value, this.countRange)
+                (value: number) => this.controlsConfig.yMaxInput =
+                    getYAxisMaxSliderValue(this.yMaxStep, this.countRange, value)
             ),
             handleYAxisMaxChange: action(
-                (input: string) => this.controlsConfig.yMaxInput = getYAxisMaxInputValue(input, this.countRange)
+                (input: string) => this.controlsConfig.yMaxInput = getYAxisMaxInputValue(this.yMaxStep, input)
             ),
             handleBottomYAxisMaxSliderChange: action(
-                (value: number) => this.controlsConfig.bottomYMaxInput = getYAxisMaxSliderValue(value, this.bottomCountRange)
+                (value: number) => this.controlsConfig.bottomYMaxInput =
+                    getYAxisMaxSliderValue(this.yMaxStep, this.bottomCountRange, value)
             ),
             handleBottomYAxisMaxChange: action(
-                (input: string) => this.controlsConfig.bottomYMaxInput = getYAxisMaxInputValue(input, this.bottomCountRange)
+                (input: string) => this.controlsConfig.bottomYMaxInput = getYAxisMaxInputValue(this.yMaxStep, input)
             ),
             onYMaxInputFocused:()=>{
                 this.yMaxInputFocused = true;
@@ -417,31 +419,35 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
     }
 
     @computed get yMaxSlider() {
-        // we don't want max slider value to go over the actual max, even if the user input goes over it
-        return Math.min(this.countRange[1], this.controlsConfig.yMaxInput || this.countRange[1]);
+        return getYAxisMaxSliderValue(this.yMaxStep, this.countRange, this.controlsConfig.yMaxInput);
+    }
+
+    @computed get yMaxStep() {
+        return Math.pow(10, -(this.props.yMaxFractionDigits || 0));
     }
 
     @computed get yMaxSliderStep() {
-        return this.countRange[0] < 1 ? 0.001 : 1;
+        return this.countRange[0] < 1 ? this.yMaxStep : 1;
     }
 
     @computed get bottomYMaxSlider() {
-        // we don't want max slider value to go over the actual max, even if the user input goes over it
-        return Math.min(this.bottomCountRange[1], this.controlsConfig .bottomYMaxInput || this.bottomCountRange[1]);
+        return getYAxisMaxSliderValue(this.yMaxStep, this.bottomCountRange, this.controlsConfig.bottomYMaxInput);
     }
 
     @computed get bottomYMaxSliderStep() {
-        return this.bottomCountRange[0] < 1 ? 0.001 : 1;
+        return this.bottomCountRange[0] < 1 ? this.yMaxStep : 1;
     }
 
     @computed get yMaxInput() {
         // allow the user input value to go over the actual count range
-        return this.controlsConfig.yMaxInput === undefined ? this.countRange[1]: this.controlsConfig.yMaxInput;
+        return this.controlsConfig.yMaxInput === undefined ?
+            getYAxisMaxSliderValue(this.yMaxStep, this.countRange): this.controlsConfig.yMaxInput;
     }
 
     @computed get bottomYMaxInput() {
         // allow the user input value to go over the actual count range
-        return this.controlsConfig.bottomYMaxInput === undefined ? this.bottomCountRange[1]: this.controlsConfig.bottomYMaxInput;
+        return this.controlsConfig.bottomYMaxInput === undefined ?
+            getYAxisMaxSliderValue(this.yMaxStep, this.bottomCountRange): this.controlsConfig.bottomYMaxInput;
     }
 
     @autobind
@@ -499,9 +505,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                         onToggleLegend={this.handlers.handleToggleLegend}
                         yMaxSlider={this.yMaxSlider}
                         yMaxSliderStep={this.yMaxSliderStep}
-                        yMaxInput={this.yMaxSliderStep < 1 ?
-                            Number(this.yMaxInput.toFixed(this.props.yMaxFractionDigits)): this.yMaxInput}
-                        yMaxFractionDigits={this.props.yMaxFractionDigits}
+                        yMaxInput={this.yMaxInput}
                         bottomYMaxSlider={this.bottomYMaxSlider}
                         bottomYMaxSliderStep={this.bottomYMaxSliderStep}
                         bottomYMaxInput={this.bottomYMaxInput}
@@ -526,9 +530,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                         hugoGeneSymbol={this.hugoGeneSymbol}
                         xMax={this.proteinLength}
                         yMax={this.yMaxInput}
-                        yMaxFractionDigits={this.yMaxSliderStep < 1 ?
-                            this.props.yMaxFractionDigits: undefined
-                        }
+                        yMaxFractionDigits={this.yMaxSliderStep < 1 ? this.props.yMaxFractionDigits: undefined}
                         yMaxLabelPostfix={this.props.yMaxLabelPostfix}
                         yAxisLabelPadding={this.props.yAxisLabelPadding}
                         showYAxis={this.props.showYAxis}

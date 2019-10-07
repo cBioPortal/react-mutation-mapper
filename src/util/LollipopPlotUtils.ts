@@ -61,15 +61,16 @@ export function lollipopLabelTextAnchor(labelText: string,
     return anchor;
 }
 
-export function getYAxisMaxSliderValue(value: number, countRange: [number, number])
-{
-    return value < countRange[0] ? countRange[0] : value;
+export function getYAxisMaxSliderValue(yMaxStep: number, countRange: number[], yMaxInput?: number) {
+    const defaultMin = yMaxStep * Math.ceil(countRange[1] / yMaxStep);
+    // we don't want max slider value to go over the actual max, even if the user input goes over it
+    return Math.min(defaultMin, yMaxInput || defaultMin);
 }
 
-export function getYAxisMaxInputValue(input: string, countRange: [number, number])
+export function getYAxisMaxInputValue(yMaxStep: number, input: string)
 {
     const value = parseFloat(input);
-    return value < countRange[0] ? countRange[0] : value;
+    return value < yMaxStep ? yMaxStep : value;
 }
 
 export function calcCountRange(lollipops: LollipopSpec[],
