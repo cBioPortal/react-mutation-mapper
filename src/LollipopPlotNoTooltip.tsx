@@ -461,16 +461,20 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
         return sequenceComponents;
     }
 
+    @computed private get zeroHeight() {
+        // we need to add a non-zero value if the stick needs to start from the gene center
+        return this.props.zeroStickBaseY ? 0: this.domainPadding + this.domainHeight / 2;
+    }
+
     @computed private get lollipops() {
         this.lollipopComponents = {};
         const hoverHeadRadius = 5;
         return this.props.lollipops.map((lollipop:LollipopSpec, i:number) => {
             const stickHeight = lollipop.placement === LollipopPlacement.BOTTOM ?
-                -this.countToHeight(lollipop.count, this.bottomYMax) :
-                this.countToHeight(lollipop.count, this.yMax);
+                -this.countToHeight(lollipop.count, this.bottomYMax, this.zeroHeight) :
+                this.countToHeight(lollipop.count, this.yMax, this.zeroHeight);
 
-            const stickBaseY = lollipop.placement === LollipopPlacement.BOTTOM ?
-                this.bottomYAxisY : this.yAxisY + this.yAxisHeight;
+            const stickBaseY = this.calcStickBaseY(lollipop.placement);
 
             return (
                 <Lollipop
@@ -592,6 +596,19 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
 
     @computed public get svgHeight() {
         return this.needBottomPlacement ? 2 * this.props.vizHeight : this.props.vizHeight;
+    }
+
+    private calcStickBaseY(placement?: LollipopPlacement)
+    {
+        // by default start from the center of the plot
+        let stickBaseY = this.geneCenterY;
+
+        // calculation needed when the stick starts from the axis zero (above domains)
+        if (this.props.zeroStickBaseY) {
+            stickBaseY = placement === LollipopPlacement.BOTTOM ? this.bottomYAxisY : this.yAxisY + this.yAxisHeight;
+        }
+
+        return stickBaseY;
     }
 
     private makeDomainIndexClass(index:number) {
