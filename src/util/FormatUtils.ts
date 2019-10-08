@@ -11,3 +11,7 @@ export function formatPercentValue(rate: number, fractionDigits: number = 1)
 
     return displayValue;
 }
+
+export function numberOfLeadingDecimalZeros(value: number) {
+    return -Math.floor( (Math.log10(value) / Math.log10(10)) + 1);
+}

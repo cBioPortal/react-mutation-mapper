@@ -5,6 +5,7 @@ import Slider from 'react-rangeslider'
 import {computed} from "mobx";
 import {observer} from "mobx-react";
 
+import {numberOfLeadingDecimalZeros} from "./util/FormatUtils";
 import {getYAxisMaxSliderValue} from "./util/LollipopPlotUtils";
 import TrackSelector, {TrackDataStatus, TrackName, TrackVisibility} from "./TrackSelector";
 
@@ -41,6 +42,14 @@ type LollipopMutationPlotControlsProps = {
     onTrackVisibilityChange?: (selectedTrackIds: string[]) => void;
     getSVG: () => SVGElement;
 };
+
+function formatInputValue(value: number, step: number = 1)
+{
+    const decimalZeros = numberOfLeadingDecimalZeros(step);
+    const fixed = decimalZeros < 0 ? 0: decimalZeros + 1;
+
+    return value.toFixed(fixed);
+}
 
 @observer
 export default class LollipopMutationPlotControls extends React.Component<LollipopMutationPlotControlsProps, {}>
@@ -93,7 +102,7 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
                 </div>
                 <EditableSpan
                     className={styles["ymax-number-input"]}
-                    value={`${yMaxInput}`}
+                    value={formatInputValue(yMaxInput, yMaxSliderStep)}
                     setValue={onYAxisMaxChange}
                     numericOnly={yMaxSliderStep >= 1}
                     onFocus={this.props.onYMaxInputFocused}
