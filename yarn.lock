@@ -2890,9 +2890,9 @@ buffer@^4.3.0:
     isarray "^1.0.0"
 
 buffer@^5.4.0:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.4.0.tgz#33294f5c1f26e08461e528b69fa06de3c45cbd8c"
-  integrity sha512-Xpgy0IwHK2N01ncykXTy6FpCWuM+CJSHoPVBLyNqyrWxsedpLvwsYUhf0ME3WRFNUhos0dMamz9cOS/xRDtU5g==
+  version "5.4.3"
+  resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.4.3.tgz#3fbc9c69eb713d323e3fc1a895eee0710c072115"
+  integrity sha512-zvj65TkFeIt3i6aj5bIvJDzjjQQGs4o/sNoezg1F1kYap9Nu2jcUdpwzRSJTHMMzG0H7bZkn4rNQpImhuxWX2A==
   dependencies:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
@@ -3083,10 +3083,10 @@ caseless@~0.12.0:
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
-cbioportal-frontend-commons@^0.0.21:
-  version "0.0.21"
-  resolved "https://registry.yarnpkg.com/cbioportal-frontend-commons/-/cbioportal-frontend-commons-0.0.21.tgz#29744db60121357d70433baed280dc3b96799a4b"
-  integrity sha512-5Ij3F8xgrHIrJf/es4g2yz1oNpzPYUA7XMPPKxyWJkZ+UayqcRQ1UTSQVnWfela6RmIhN0Ie7LrhqyXaIm6LpQ==
+cbioportal-frontend-commons@^0.0.22:
+  version "0.0.22"
+  resolved "https://registry.yarnpkg.com/cbioportal-frontend-commons/-/cbioportal-frontend-commons-0.0.22.tgz#6a547913adadf2ae2de08c2ca31f4d5103a409ed"
+  integrity sha512-ECWVbXvkqF0msXcrcDXN1MmQ1f1cfi6/++IkE4ThpSuxNmK08/BsXbYZCqDof42v70yN1auXEbhs3jWNDjHk1g==
   dependencies:
     autobind-decorator "^2.1.0"
     babel-polyfill "^6.22.0"
