@@ -18,7 +18,7 @@ import {SequenceSpec} from "./model/SequenceSpec";
 import {DefaultLollipopPlotControlsConfig} from "./store/DefaultLollipopPlotControlsConfig";
 import {
     calcCountRange,
-    getYAxisMaxSliderValue,
+    calcYMaxInput,
     getYAxisMaxInputValue,
     lollipopLabelText,
     lollipopLabelTextAnchor
@@ -49,6 +49,7 @@ export type LollipopMutationPlotProps = {
     yMaxFractionDigits?: number;
     yMaxLabelPostfix?: string;
     showYAxis?: boolean;
+    yAxisSameScale?: boolean;
     bottomYAxisDefaultMax?: number;
     bottomYAxisDefaultMin?: number;
     yAxisLabelPadding?: number;
@@ -75,7 +76,8 @@ export type LollipopMutationPlotProps = {
 export default class LollipopMutationPlot extends React.Component<LollipopMutationPlotProps, {}>
 {
     public static defaultProps: Partial<LollipopMutationPlotProps> = {
-        yMaxFractionDigits: 1
+        yMaxFractionDigits: 1,
+        yAxisSameScale: true
     };
 
     @observable private mouseInPlot:boolean = true;
@@ -392,14 +394,14 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
         this.handlers = {
             handleYAxisMaxSliderChange: action(
                 (value: number) => this.controlsConfig.yMaxInput =
-                    getYAxisMaxSliderValue(this.yMaxStep, this.countRange, value)
+                    calcYMaxInput(value, this.yMaxStep, this.countRange, this.bottomCountRange, this.props.yAxisSameScale)
             ),
             handleYAxisMaxChange: action(
                 (input: string) => this.controlsConfig.yMaxInput = getYAxisMaxInputValue(this.yMaxStep, input)
             ),
             handleBottomYAxisMaxSliderChange: action(
                 (value: number) => this.controlsConfig.bottomYMaxInput =
-                    getYAxisMaxSliderValue(this.yMaxStep, this.bottomCountRange, value)
+                    calcYMaxInput(value, this.yMaxStep, this.bottomCountRange, this.countRange, this.props.yAxisSameScale)
             ),
             handleBottomYAxisMaxChange: action(
                 (input: string) => this.controlsConfig.bottomYMaxInput = getYAxisMaxInputValue(this.yMaxStep, input)
@@ -419,7 +421,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
     }
 
     @computed get yMaxSlider() {
-        return getYAxisMaxSliderValue(this.yMaxStep, this.countRange, this.controlsConfig.yMaxInput);
+        return this.yMaxInput;
     }
 
     @computed get yMaxStep() {
@@ -431,23 +433,29 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
     }
 
     @computed get bottomYMaxSlider() {
-        return getYAxisMaxSliderValue(this.yMaxStep, this.bottomCountRange, this.controlsConfig.bottomYMaxInput);
+        return this.bottomYMaxInput;
     }
 
     @computed get bottomYMaxSliderStep() {
         return this.bottomCountRange[0] < 1 ? this.yMaxStep : 1;
     }
 
-    @computed get yMaxInput() {
-        // allow the user input value to go over the actual count range
-        return this.controlsConfig.yMaxInput === undefined ?
-            getYAxisMaxSliderValue(this.yMaxStep, this.countRange): this.controlsConfig.yMaxInput;
+    @computed get yMaxInput()
+    {
+        return calcYMaxInput(this.controlsConfig.yMaxInput,
+            this.yMaxStep,
+            this.countRange,
+            this.bottomCountRange,
+            this.props.yAxisSameScale);
     }
 
-    @computed get bottomYMaxInput() {
-        // allow the user input value to go over the actual count range
-        return this.controlsConfig.bottomYMaxInput === undefined ?
-            getYAxisMaxSliderValue(this.yMaxStep, this.bottomCountRange): this.controlsConfig.bottomYMaxInput;
+    @computed get bottomYMaxInput()
+    {
+        return calcYMaxInput(this.controlsConfig.bottomYMaxInput,
+            this.yMaxStep,
+            this.bottomCountRange,
+            this.countRange,
+            this.props.yAxisSameScale);
     }
 
     @autobind
@@ -506,6 +514,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                         yMaxSlider={this.yMaxSlider}
                         yMaxSliderStep={this.yMaxSliderStep}
                         yMaxInput={this.yMaxInput}
+                        yAxisSameScale={this.props.yAxisSameScale}
                         bottomYMaxSlider={this.bottomYMaxSlider}
                         bottomYMaxSliderStep={this.bottomYMaxSliderStep}
                         bottomYMaxInput={this.bottomYMaxInput}

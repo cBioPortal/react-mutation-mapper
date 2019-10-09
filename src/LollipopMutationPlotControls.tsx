@@ -1,12 +1,13 @@
 import {DownloadControls, EditableSpan} from "cbioportal-frontend-commons";
 import classnames from "classnames";
+import _ from "lodash";
 import * as React from "react";
 import Slider from 'react-rangeslider'
 import {computed} from "mobx";
 import {observer} from "mobx-react";
 
 import {numberOfLeadingDecimalZeros} from "./util/FormatUtils";
-import {getYAxisMaxSliderValue} from "./util/LollipopPlotUtils";
+import {calcYMaxInput} from "./util/LollipopPlotUtils";
 import TrackSelector, {TrackDataStatus, TrackName, TrackVisibility} from "./TrackSelector";
 
 import "react-rangeslider/lib/index.css";
@@ -28,6 +29,7 @@ type LollipopMutationPlotControlsProps = {
     yMaxSlider: number;
     yMaxSliderStep: number;
     yMaxInput: number;
+    yAxisSameScale?: boolean;
     bottomYMaxSlider?: number;
     bottomYMaxSliderStep: number;
     bottomYMaxInput?: number;
@@ -65,6 +67,7 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
     get showBottomYAxisSlider() {
         return (
             this.props.bottomCountRange &&
+            _.compact(this.props.bottomCountRange).length > 0 &&
             this.props.onBottomYAxisMaxSliderChange &&
             this.props.onBottomYAxisMaxChange &&
             this.props.bottomYMaxSlider &&
@@ -73,10 +76,12 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
     }
 
     protected maxValueSlider(countRange: [number, number],
+                             oppositeCountRange: [number, number],
                              onYAxisMaxSliderChange: (event: any) => void,
                              onYAxisMaxChange: (inputValue: string) => void,
                              yMaxSlider: number,
                              yMaxInput: number,
+                             yAxisSameScale: boolean = false,
                              label: string = "Y-Axis Max",
                              width: number = 100,
                              yMaxSliderStep: number = 1)
@@ -93,7 +98,7 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
                 >
                     <Slider
                         min={yMaxSliderStep}
-                        max={getYAxisMaxSliderValue(yMaxSliderStep, countRange)}
+                        max={calcYMaxInput(undefined, yMaxSliderStep, countRange, oppositeCountRange, yAxisSameScale)}
                         tooltip={false}
                         step={yMaxSliderStep}
                         onChange={onYAxisMaxSliderChange}
@@ -116,10 +121,12 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
     {
         return this.maxValueSlider(
             this.props.countRange,
+            this.props.bottomCountRange!,
             this.props.onYAxisMaxSliderChange,
             this.props.onYAxisMaxChange,
             this.props.yMaxSlider,
             this.props.yMaxInput,
+            this.props.yAxisSameScale,
             this.showBottomYAxisSlider ? "Top Y-Axis Max" : "Y-Axis Max",
             this.showBottomYAxisSlider ? 100 : 200,
             this.props.yMaxSliderStep);
@@ -131,10 +138,12 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
         {
             return this.maxValueSlider(
                 this.props.bottomCountRange!,
+                this.props.countRange,
                 this.props.onBottomYAxisMaxSliderChange!,
                 this.props.onBottomYAxisMaxChange!,
                 this.props.bottomYMaxSlider!,
                 this.props.bottomYMaxInput!,
+                this.props.yAxisSameScale,
                 "Bottom Y-Axis Max",
                 100,
                 this.props.bottomYMaxSliderStep);

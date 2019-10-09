@@ -61,6 +61,35 @@ export function lollipopLabelTextAnchor(labelText: string,
     return anchor;
 }
 
+export function calcYMaxInput(yMaxInput: number | undefined,
+                              yMaxStep: number,
+                              countRange: number[],
+                              oppositeCountRange: number[],
+                              yAxisSameScale?: boolean)
+{
+    // allow the user input value to go over the actual count range
+    let input = yMaxInput;
+
+    if (input === undefined) {
+        input = yAxisSameScale ?
+            getCommonYAxisMaxSliderValue(yMaxStep, countRange, oppositeCountRange):
+            getYAxisMaxSliderValue(yMaxStep, countRange);
+    }
+
+    return input;
+}
+
+export function getCommonYAxisMaxSliderValue(yMaxStep: number,
+                                             countRange: number[],
+                                             oppositeCountRange: number[],
+                                             yMaxInput?: number)
+{
+    const defaultTopMin = getYAxisMaxSliderValue(yMaxStep, countRange, yMaxInput);
+    const defaultBottomMin = getYAxisMaxSliderValue(yMaxStep, oppositeCountRange, yMaxInput);
+
+    return Math.max(defaultTopMin, defaultBottomMin);
+}
+
 export function getYAxisMaxSliderValue(yMaxStep: number, countRange: number[], yMaxInput?: number) {
     const defaultMin = yMaxStep * Math.ceil(countRange[1] / yMaxStep);
     // we don't want max slider value to go over the actual max, even if the user input goes over it
