@@ -40,7 +40,7 @@ export enum MutationColumnName {
 }
 
 export function rightAlignedCell(cellProps: any) {
-    return <span className="pull-right">{cellProps.value}</span>;
+    return <span className="pull-right mr-3">{cellProps.value}</span>;
 }
 
 export const MUTATION_COLUMN_HEADERS = {
@@ -66,17 +66,17 @@ export const MUTATION_COLUMN_HEADERS = {
     ),
     [MutationColumn.CHROMOSOME]: (
         <ColumnHeader
-            headerContent={<span className="pull-right">{MutationColumnName.CHROMOSOME}</span>}
+            headerContent={<span className="pull-right mr-3">{MutationColumnName.CHROMOSOME}</span>}
         />
     ),
     [MutationColumn.START_POSITION]: (
         <ColumnHeader
-            headerContent={<span className="pull-right">{MutationColumnName.START_POSITION}</span>}
+            headerContent={<span className="pull-right mr-3">{MutationColumnName.START_POSITION}</span>}
         />
     ),
     [MutationColumn.END_POSITION]: (
         <ColumnHeader
-            headerContent={<span className="pull-right">{MutationColumnName.END_POSITION}</span>}
+            headerContent={<span className="pull-right mr-3">{MutationColumnName.END_POSITION}</span>}
         />
     ),
     [MutationColumn.REFERENCE_ALLELE]: (
@@ -94,7 +94,7 @@ export const MUTATION_COLUMN_HEADERS = {
     [MutationColumn.GNOMAD]: (
         <ColumnHeader
             headerContent={
-                <span className="pull-right">
+                <span className="pull-right mr-3">
                     {MutationColumnName.GNOMAD} <i className="fa fa-info-circle" />
                 </span>
             }
@@ -110,7 +110,7 @@ export const MUTATION_COLUMN_HEADERS = {
     [MutationColumn.CLINVAR]: (
         <ColumnHeader
             headerContent={
-                <span className="pull-right">
+                <span className="pull-right mr-3">
                     {MutationColumnName.CLINVAR} <i className="fa fa-info-circle" />
                 </span>
             }
