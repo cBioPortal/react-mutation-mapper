@@ -22,6 +22,7 @@ export type BadgeSelectorProps = {
     isDisabled?: boolean;
     numberOfColumnsPerRow?: number;
     onSelect?: (selectedOptionIds: string[], allValuesSelected?: boolean) => void;
+    selectedValues?: {value: string}[];
     filter?: DataFilter<string>;
     options?: BadgeSelectorOption[];
     badgeClassName?: string;
@@ -38,7 +39,7 @@ export class BadgeSelector extends React.Component<BadgeSelectorProps, {}>
 
     @computed
     public get selectedValues() {
-        return getSelectedOptionValues(this.allValues, this.props.filter);
+        return this.props.selectedValues || getSelectedOptionValues(this.allValues, this.props.filter);
     }
 
     @computed
