@@ -1,5 +1,5 @@
 import autobind from "autobind-decorator";
-import {Checklist, Option} from "cbioportal-frontend-commons";
+import {CheckBoxType, Checklist, Option} from "cbioportal-frontend-commons";
 import {action, computed} from "mobx";
 import {observer} from "mobx-react";
 import * as React from 'react';
@@ -23,6 +23,9 @@ export type BadgeSelectorProps = {
     numberOfColumnsPerRow?: number;
     onSelect?: (selectedOptionIds: string[], allValuesSelected?: boolean) => void;
     selectedValues?: {value: string}[];
+    getOptionLabel?: (option: Option,
+                      selectedValues: {[optionValue: string]: any},
+                      checkBoxType?: CheckBoxType) => JSX.Element;
     filter?: DataFilter<string>;
     options?: BadgeSelectorOption[];
     badgeClassName?: string;
@@ -63,6 +66,7 @@ export class BadgeSelector extends React.Component<BadgeSelectorProps, {}>
             <Checklist
                 onChange={this.onChange}
                 options={this.options}
+                getOptionLabel={this.props.getOptionLabel}
                 value={this.selectedValues}
                 isDisabled={this.props.isDisabled}
                 numberOfColumnsPerRow={this.props.numberOfColumnsPerRow}
