@@ -127,18 +127,18 @@ export function applyDefaultMutationFilter(filter: MutationFilter, mutation: Mut
 }
 
 export function groupDataByGroupFilters(groupFilters: {group: string, filter: DataFilter}[],
-                                        dataStore: DataStore,
+                                        sortedFilteredData: any[],
                                         applyFilter: ApplyFilterFn)
 {
     return groupFilters.map(groupFilter => ({
         group: groupFilter.group,
-        data: dataStore.sortedFilteredData.filter(
+        data: sortedFilteredData.filter(
             // TODO simplify array flatten if possible
             m => applyFilter(groupFilter.filter, _.flatten([m])[0]))
     }));
 }
 
-export function groupDataByProteinImpactType(dataStore: DataStore)
+export function groupDataByProteinImpactType(sortedFilteredData: any[])
 {
     const filters = Object.keys(ProteinImpactType).map(key => ({
         group: ProteinImpactType[key],
@@ -148,7 +148,7 @@ export function groupDataByProteinImpactType(dataStore: DataStore)
         }
     }));
 
-    const groupedData = groupDataByGroupFilters(filters, dataStore, applyDefaultProteinImpactTypeFilter);
+    const groupedData = groupDataByGroupFilters(filters, sortedFilteredData, applyDefaultProteinImpactTypeFilter);
 
     return _.keyBy(groupedData, d => d.group);
 }
@@ -177,4 +177,19 @@ export function onFilterOptionSelect(selectedValues: string[],
         // replace the existing data filter wrt the current selection (other filters + new data filter)
         dataStore.setDataFilters([...otherFilters, dataFilter]);
     }
+}
+
+export function applyDataFiltersOnDatum(datum: any, dataFilters: DataFilter[], applyFilter: ApplyFilterFn) {
+    return (
+        dataFilters.length > 0 &&
+        !dataFilters
+            .map(dataFilter => applyFilter(dataFilter, datum))
+            .includes(false)
+    );
+}
+
+export function applyDataFilters(data: any[], dataFilters: DataFilter[], applyFilter: ApplyFilterFn) {
+    return dataFilters.length > 0 ? data.filter(
+        m => applyDataFiltersOnDatum(m, dataFilters, applyFilter)
+    ): data;
 }

@@ -6,7 +6,7 @@ import MobxPromise, {cached} from "mobxpromise";
 
 import OncoKbEvidenceCache from "../cache/OncoKbEvidenceCache";
 import {AggregatedHotspots, GenomicLocation, Hotspot, IHotspotIndex} from "../model/CancerHotspot";
-import {DataFilter} from "../model/DataFilter";
+import {DataFilter, DataFilterType} from "../model/DataFilter";
 import DataStore from "../model/DataStore";
 import {EnsemblTranscript} from "../model/EnsemblTranscript";
 import {ApplyFilterFn, FilterApplier} from "../model/FilterApplier";
@@ -23,7 +23,7 @@ import {
     indexHotspotsData
 } from "../util/CancerHotspotsUtils";
 import {ONCOKB_DEFAULT_DATA} from "../util/DataFetcherUtils";
-import {groupDataByProteinImpactType} from "../util/FilterUtils";
+import {applyDataFilters, groupDataByProteinImpactType} from "../util/FilterUtils";
 import {getMutationsToTranscriptId} from "../util/MutationAnnotator";
 import {genomicLocationString, groupMutationsByProteinStartPos, uniqueGenomicLocations} from "../util/MutationUtils";
 import {
@@ -188,8 +188,17 @@ class DefaultMutationMapperStore implements MutationMapperStore
     }
 
     @computed
-    protected get mutationsGroupedByProteinImpactType() {
-        return groupDataByProteinImpactType(this.dataStore);
+    protected get mutationsGroupedByProteinImpactType()
+    {
+        const filtersWithoutProteinImpactTypeFilter =
+            this.dataStore.dataFilters.filter(f => f.type !== DataFilterType.PROTEIN_IMPACT_TYPE);
+
+        // apply filters excluding the protein impact type filters
+        // this prevents number of unchecked protein impact types from being counted as zero
+        const sortedFilteredData = applyDataFilters(
+            this.dataStore.allData, filtersWithoutProteinImpactTypeFilter, this.dataStore.applyFilter);
+
+        return groupDataByProteinImpactType(sortedFilteredData);
     }
 
     @computed

@@ -6,7 +6,7 @@ import {DataFilter, DataFilterType} from "../model/DataFilter";
 import DataStore from "../model/DataStore";
 import {FilterApplier} from "../model/FilterApplier";
 import {Mutation} from "../model/Mutation";
-import {groupDataByGroupFilters, indexPositions} from "../util/FilterUtils";
+import {applyDataFiltersOnDatum, groupDataByGroupFilters, indexPositions} from "../util/FilterUtils";
 
 type GroupedData = Array<{group: string, data: Array<Mutation | Mutation[]>}>;
 
@@ -64,7 +64,7 @@ export class DefaultMutationMapperDataStore implements DataStore
     @computed
     public get sortedFilteredGroupedData(): GroupedData
     {
-        return groupDataByGroupFilters(this.groupFilters, this, this.applyFilter);
+        return groupDataByGroupFilters(this.groupFilters, this.sortedFilteredData, this.applyFilter);
     }
 
     @computed
@@ -135,32 +135,17 @@ export class DefaultMutationMapperDataStore implements DataStore
 
     public dataMainFilter(mutation: Mutation): boolean
     {
-        return (
-            this.dataFilters.length > 0 &&
-            !this.dataFilters
-                .map(dataFilter => this.applyFilter(dataFilter, mutation))
-                .includes(false)
-        );
+        return applyDataFiltersOnDatum(mutation, this.dataFilters, this.applyFilter);
     }
 
     public dataSelectFilter(mutation: Mutation): boolean
     {
-        return (
-            this.selectionFilters.length > 0 &&
-            !this.selectionFilters
-                .map(dataFilter => this.applyFilter(dataFilter, mutation))
-                .includes(false)
-        );
+        return applyDataFiltersOnDatum(mutation, this.selectionFilters, this.applyFilter);
     }
 
     public dataHighlightFilter(mutation: Mutation): boolean
     {
-        return (
-            this.highlightFilters.length > 0 &&
-            !this.highlightFilters
-                .map(dataFilter => this.applyFilter(dataFilter, mutation))
-                .includes(false)
-        );
+        return applyDataFiltersOnDatum(mutation,this.highlightFilters, this.applyFilter);
     }
 
     @autobind
