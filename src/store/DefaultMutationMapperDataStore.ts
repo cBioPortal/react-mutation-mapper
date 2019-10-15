@@ -145,7 +145,7 @@ export class DefaultMutationMapperDataStore implements DataStore
 
     public dataHighlightFilter(mutation: Mutation): boolean
     {
-        return applyDataFiltersOnDatum(mutation,this.highlightFilters, this.applyFilter);
+        return applyDataFiltersOnDatum(mutation, this.highlightFilters, this.applyFilter);
     }
 
     @autobind

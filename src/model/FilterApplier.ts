@@ -1,7 +1,6 @@
 import {DataFilter} from "./DataFilter";
-import {Mutation} from "./Mutation";
 
-export type ApplyFilterFn = (filter: DataFilter, mutation: Partial<Mutation>) => boolean;
+export type ApplyFilterFn = (filter: DataFilter, datum: any) => boolean;
 
 export interface FilterApplier
 {

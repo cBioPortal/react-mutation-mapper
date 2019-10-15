@@ -19,7 +19,7 @@ export interface MutationMapperStore {
     activeTranscript?: string;
     canonicalTranscript: RemoteData<EnsemblTranscript | undefined>,
     mutationAlignerLinks: RemoteData<{[pfamAccession:string]:string} | undefined>;
-    mutationData: RemoteData<Mutation[]>;
+    mutationData: RemoteData<Partial<Mutation>[] | undefined>;
     pfamDomainData: RemoteData<PfamDomain[] | undefined>;
     allTranscripts: RemoteData<EnsemblTranscript[] | undefined>;
     transcriptsByTranscriptId: {[transcriptId: string]: EnsemblTranscript};
