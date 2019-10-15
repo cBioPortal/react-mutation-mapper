@@ -266,7 +266,7 @@ class DefaultMutationMapperStore implements MutationMapperStore
         return mutations.map(m => getMutationCount(m)).reduce((sum, count) => sum + count);
     }
 
-    readonly mutationData = remoteData({
+    readonly mutationData: MobxPromise<Partial<Mutation>[] | undefined> = remoteData({
         await: () => {
             if (this.config.filterMutationsBySelectedTranscript) {
                 return [this.canonicalTranscript, this.indexedVariantAnnotations];
@@ -443,7 +443,7 @@ class DefaultMutationMapperStore implements MutationMapperStore
         }
     }, undefined);
 
-    readonly transcriptsWithAnnotations = remoteData<string[] | undefined>({
+    readonly transcriptsWithAnnotations: MobxPromise<string[] | undefined> = remoteData({
         await: () => [
             this.indexedVariantAnnotations,
             this.allTranscripts,
