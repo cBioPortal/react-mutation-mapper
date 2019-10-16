@@ -26,6 +26,7 @@ export type BadgeSelectorProps = {
     getOptionLabel?: (option: Option,
                       selectedValues: {[optionValue: string]: any},
                       checkBoxType?: CheckBoxType) => JSX.Element;
+    getBadgeLabel?: (option: BadgeSelectorOption, badgeClassName?: string) => JSX.Element;
     filter?: DataFilter<string>;
     options?: BadgeSelectorOption[];
     badgeClassName?: string;
@@ -45,17 +46,23 @@ export class BadgeSelector extends React.Component<BadgeSelectorProps, {}>
         return this.props.selectedValues || getSelectedOptionValues(this.allValues, this.props.filter);
     }
 
+    public getBadgeLabel(option: BadgeSelectorOption, badgeClassName?: string): JSX.Element {
+        return this.props.getBadgeLabel ?
+            this.props.getBadgeLabel(option, badgeClassName): (
+                <BadgeLabel
+                    label={option.label || option.value}
+                    badgeContent={option.badgeContent}
+                    badgeStyleOverride={option.badgeStyleOverride}
+                    badgeClassName={this.props.badgeClassName}
+                />
+            );
+    }
+
     @computed
     public get options(): Option[] {
         return (this.props.options || [])
             .map(option => ({
-                label:
-                    <BadgeLabel
-                        label={option.label || option.value}
-                        badgeContent={option.badgeContent}
-                        badgeStyleOverride={option.badgeStyleOverride}
-                        badgeClassName={this.props.badgeClassName}
-                    />,
+                label: this.getBadgeLabel(option, this.props.badgeClassName),
                 value: option.value
             }));
     }

@@ -1,11 +1,12 @@
-import {ProteinImpactType} from "cbioportal-frontend-commons";
+import {Option, ProteinImpactType} from "cbioportal-frontend-commons";
 import {computed} from "mobx";
 import {observer} from "mobx-react";
 import * as React from 'react';
 
 import {IProteinImpactTypeColors} from "../../model/ProteinImpact";
 import {DEFAULT_PROTEIN_IMPACT_TYPE_COLORS} from "../../util/MutationUtils";
-import BadgeSelector, {BadgeSelectorProps} from "./BadgeSelector";
+import {BadgeLabel} from "./BadgeLabel";
+import BadgeSelector, {BadgeSelectorOption, BadgeSelectorProps} from "./BadgeSelector";
 import {getProteinImpactTypeColorMap, getProteinImpactTypeOptionDisplayValueMap} from "./ProteinImpactTypeHelper";
 
 export type ProteinImpactTypeBadgeSelectorProps = BadgeSelectorProps &
@@ -20,6 +21,37 @@ const VALUES = [
     ProteinImpactType.INFRAME,
     ProteinImpactType.OTHER
 ];
+
+export function getProteinImpactTypeOptionLabel(option: Option,
+                                                selectedValues: {[optionValue: string]: any}): JSX.Element
+{
+    const isSelected = option.value in selectedValues;
+
+    return (
+        <span
+            style={{
+                opacity: isSelected ? undefined: 0.4,
+                textDecoration: isSelected ? undefined: "line-through"
+            }}
+        >
+            {option.label || option.value}
+        </span>
+    );
+}
+
+export function getProteinImpactTypeBadgeLabel(option: BadgeSelectorOption,
+                                               badgeClassName?: string): JSX.Element
+{
+    return (
+        <BadgeLabel
+            label={option.label || option.value}
+            badgeContent={option.badgeContent}
+            badgeStyleOverride={option.badgeStyleOverride}
+            badgeClassName={badgeClassName}
+            badgeFirst={true}
+        />
+    );
+}
 
 @observer
 export class ProteinImpactTypeBadgeSelector extends React.Component<ProteinImpactTypeBadgeSelectorProps, {}>
@@ -56,6 +88,8 @@ export class ProteinImpactTypeBadgeSelector extends React.Component<ProteinImpac
         return (
             <BadgeSelector
                 options={this.options}
+                getOptionLabel={getProteinImpactTypeOptionLabel}
+                getBadgeLabel={getProteinImpactTypeBadgeLabel}
                 {...this.props}
             />
         );
