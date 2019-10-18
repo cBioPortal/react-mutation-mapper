@@ -24,6 +24,7 @@ export {
 } from "./component/filter/BadgeLabel";
 export {
     default as BadgeSelector,
+    BadgeSelectorOption,
     BadgeSelectorProps
 } from "./component/filter/BadgeSelector";
 export {
@@ -72,6 +73,7 @@ export {default as LollipopPlotNoTooltip} from "./LollipopPlotNoTooltip";
 export {default as Sequence} from "./LollipopPlot";
 export {
     default as MutationMapper,
+    initDefaultMutationMapperStore,
     MutationMapperProps
 } from "./MutationMapper";
 export {
