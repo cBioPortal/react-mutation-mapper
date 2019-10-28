@@ -84,6 +84,34 @@ export type MutationMapperProps = {
     filterApplier?: FilterApplier;
 };
 
+export function initDefaultMutationMapperStore(props: MutationMapperProps)
+{
+    return new DefaultMutationMapperStore(
+        {
+            entrezGeneId: props.entrezGeneId, // entrezGeneId is required to display uniprot id
+            hugoGeneSymbol: props.hugoSymbol ? props.hugoSymbol! : ""
+        },
+        {
+            annotationFields: props.annotationFields,
+            isoformOverrideSource: props.isoformOverrideSource,
+            filterMutationsBySelectedTranscript: props.filterMutationsBySelectedTranscript,
+            genomeNexusUrl: props.genomeNexusUrl,
+            oncoKbUrl: props.oncoKbUrl,
+            cachePostMethodsOnClients: props.cachePostMethodsOnClients,
+            apiCacheLimit: props.apiCacheLimit,
+            getMutationCount: props.getMutationCount,
+            getTumorType: props.getTumorType,
+            dataFilters: props.dataFilters,
+            selectionFilters: props.selectionFilters,
+            highlightFilters: props.highlightFilters,
+            groupFilters: props.groupFilters
+        },
+        () => (props.data || []) as Mutation[],
+        props.filterApplier,
+        props.filterAppliersOverride
+    );
+}
+
 @observer
 export default class MutationMapper<P extends MutationMapperProps = MutationMapperProps> extends React.Component<P, {}>
 {
@@ -171,30 +199,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
     @computed
     protected get store(): MutationMapperStore
     {
-        return this.props.store ? this.props.store! : new DefaultMutationMapperStore(
-            {
-                entrezGeneId: this.props.entrezGeneId, // entrezGeneId is required to display uniprot id
-                hugoGeneSymbol: this.props.hugoSymbol ? this.props.hugoSymbol! : ""
-            },
-            {
-                annotationFields: this.props.annotationFields,
-                isoformOverrideSource: this.props.isoformOverrideSource,
-                filterMutationsBySelectedTranscript: this.props.filterMutationsBySelectedTranscript,
-                genomeNexusUrl: this.props.genomeNexusUrl,
-                oncoKbUrl: this.props.oncoKbUrl,
-                cachePostMethodsOnClients: this.props.cachePostMethodsOnClients,
-                apiCacheLimit: this.props.apiCacheLimit,
-                getMutationCount: this.props.getMutationCount,
-                getTumorType: this.props.getTumorType,
-                dataFilters: this.props.dataFilters,
-                selectionFilters: this.props.selectionFilters,
-                highlightFilters: this.props.highlightFilters,
-                groupFilters: this.props.groupFilters
-            },
-            () => (this.props.data || []) as Mutation[],
-            this.props.filterApplier,
-            this.props.filterAppliersOverride
-        );
+        return this.props.store ? this.props.store!: initDefaultMutationMapperStore(this.props);
     }
 
     @computed
