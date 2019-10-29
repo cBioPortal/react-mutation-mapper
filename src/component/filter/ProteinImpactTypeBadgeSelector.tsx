@@ -6,7 +6,7 @@ import * as React from 'react';
 import {IProteinImpactTypeColors} from "../../model/ProteinImpact";
 import {DEFAULT_PROTEIN_IMPACT_TYPE_COLORS} from "../../util/MutationUtils";
 import {BadgeLabel} from "./BadgeLabel";
-import BadgeSelector, {BadgeSelectorOption, BadgeSelectorProps} from "./BadgeSelector";
+import BadgeSelector, {BadgeSelectorOption, BadgeSelectorProps, getBadgeStyleOverride} from "./BadgeSelector";
 import {getProteinImpactTypeColorMap, getProteinImpactTypeOptionDisplayValueMap} from "./ProteinImpactTypeHelper";
 
 export type ProteinImpactTypeBadgeSelectorProps = BadgeSelectorProps &
@@ -22,31 +22,20 @@ const VALUES = [
     ProteinImpactType.OTHER
 ];
 
-export function getProteinImpactTypeOptionLabel(option: Option,
-                                                selectedValues: {[optionValue: string]: any}): JSX.Element
+export function getProteinImpactTypeOptionLabel(option: Option): JSX.Element
 {
-    const isSelected = option.value in selectedValues;
-
-    return (
-        <span
-            style={{
-                opacity: isSelected ? undefined: 0.4,
-                textDecoration: isSelected ? undefined: "line-through"
-            }}
-        >
-            {option.label || option.value}
-        </span>
-    );
+    return <span>{option.label || option.value}</span>;
 }
 
 export function getProteinImpactTypeBadgeLabel(option: BadgeSelectorOption,
+                                               selectedValues: {[optionValue: string]: any},
                                                badgeClassName?: string): JSX.Element
 {
     return (
         <BadgeLabel
             label={option.label || option.value}
             badgeContent={option.badgeContent}
-            badgeStyleOverride={option.badgeStyleOverride}
+            badgeStyleOverride={getBadgeStyleOverride(option, selectedValues)}
             badgeClassName={badgeClassName}
             badgeFirst={true}
         />

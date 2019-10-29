@@ -37,7 +37,8 @@ export {
 } from "./component/filter/ProteinImpactTypeBadgeSelector";
 export {
     default as MutationStatusBadgeSelector,
-    MutationStatusBadgeSelectorProps
+    MUTATION_STATUS_BADGE_STYLE_OVERRIDE,
+    MutationStatusBadgeSelectorProps,
 } from "./component/filter/MutationStatusBadgeSelector";
 
 export {

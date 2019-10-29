@@ -11,18 +11,26 @@ export type MutationStatusBadgeSelectorProps = BadgeSelectorProps &
     badgeSelectorOptions?: BadgeSelectorOption[];
 };
 
+export const MUTATION_STATUS_BADGE_STYLE_OVERRIDE = {
+    color: "#000",
+    backgroundColor: "#FFF",
+    borderColor: "#FFF"
+};
+
 export function getMutationStatusFilterOptions()
 {
     return [
         {
             value: "somatic",
             label: "Somatic Mutation Frequency",
-            badgeStyleOverride: {color: "#000", backgroundColor: "#CCFFFF"}
+            badgeStyleOverride: MUTATION_STATUS_BADGE_STYLE_OVERRIDE,
+            badgeStyleSelectedOverride: MUTATION_STATUS_BADGE_STYLE_OVERRIDE
         },
         {
             value: "germline",
             label: "Germline Mutation Frequency",
-            badgeStyleOverride: {color: "#000", backgroundColor: "#FFFFCC"}
+            badgeStyleOverride: MUTATION_STATUS_BADGE_STYLE_OVERRIDE,
+            badgeStyleSelectedOverride: MUTATION_STATUS_BADGE_STYLE_OVERRIDE
         }
     ];
 }

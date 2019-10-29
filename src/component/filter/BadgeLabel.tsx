@@ -11,7 +11,9 @@ export type BadgeLabelProps = {
 
 export const DEFAULT_BADGE_STYLE = {
     color: "#FFF",
-    backgroundColor: "#000"
+    backgroundColor: "#000",
+    borderStyle: "solid",
+    borderWidth: "thin"
 };
 
 export class BadgeLabel extends React.Component<BadgeLabelProps, {}>
