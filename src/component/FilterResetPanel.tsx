@@ -16,7 +16,7 @@ type FilterResetPanelProps = {
 export class FilterResetPanel extends React.Component<FilterResetPanelProps, {}>
 {
     public static defaultProps: Partial<FilterResetPanelProps> = {
-        buttonText: "Show all mutations",
+        buttonText: "Show all",
         buttonClass: classNames("btn", "btn-secondary", "btn-sm"),
         className: classNames("alert" , "alert-success", styles.filterResetPanel),
     };

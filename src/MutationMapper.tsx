@@ -276,6 +276,10 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 showYMaxSlider={this.props.showPlotYMaxSlider}
                 showLegendToggle={this.props.showPlotLegendToggle}
                 showDownloadControls={this.props.showPlotDownloadControls}
+                filterResetPanel={
+                    this.props.showFilterResetPanel && this.isFiltered && this.filterResetPanel ?
+                        this.filterResetPanel: undefined
+                }
                 trackDataStatus={this.trackDataStatus}
                 showTrackSelector={this.props.showTrackSelector}
                 onXAxisOffset={this.onXAxisOffset}
@@ -354,10 +358,10 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
 
         return (
             <FilterResetPanel
-                filterInfo={`${tableData.length}/${allData.length} mutations are shown based on current filtering.`}
+                filterInfo={`Showing ${tableData.length} of ${allData.length} mutations.`}
                 resetFilters={this.resetFilters}
             />
-        )
+        );
     }
 
     protected get mutationTable(): JSX.Element | null
@@ -404,7 +408,6 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
     {
         return this.isLoading ? this.loadingIndicator : (
             <div>
-                {this.isFiltered && this.props.showFilterResetPanel && this.filterResetPanel}
                 <div style={{ display:'flex' }}>
                     <div className="borderedChart" style={{ marginRight: "1rem" }}>
                         {this.mutationPlot}
