@@ -28,12 +28,14 @@ type LollipopMutationPlotControlsProps = {
     onToggleLegend: () => void;
     yMaxSlider: number;
     yMaxSliderStep: number;
+    yMaxSliderWidth: number;
     yMaxInput: number;
     yAxisSameScale?: boolean;
     bottomYMaxSlider?: number;
     bottomYMaxSliderStep: number;
     bottomYMaxInput?: number;
     customControls?: JSX.Element;
+    filterResetPanel?: JSX.Element;
     tracks?: TrackName[];
     trackVisibility?: TrackVisibility;
     trackDataStatus?: TrackDataStatus;
@@ -60,7 +62,8 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
         showTrackSelector: true,
         showYMaxSlider: true,
         showLegendToggle: true,
-        showDownloadControls: true
+        showDownloadControls: true,
+        yMaxSliderWidth: 100
     };
 
     @computed
@@ -128,7 +131,7 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
             this.props.yMaxInput,
             this.props.yAxisSameScale,
             this.showBottomYAxisSlider ? "Top Y-Axis Max" : "Y-Axis Max",
-            this.showBottomYAxisSlider ? 100 : 200,
+            this.props.yMaxSliderWidth,
             this.props.yMaxSliderStep);
     }
 
@@ -206,6 +209,7 @@ export default class LollipopMutationPlotControls extends React.Component<Lollip
                     {this.props.trackVisibility && this.props.onTrackVisibilityChange && this.props.showTrackSelector && this.trackSelector}
                     {this.props.showYMaxSlider && this.yMaxSlider}
                     {this.props.showYMaxSlider && this.bottomYMaxSlider}
+                    {this.props.filterResetPanel}
                     {this.props.customControls}
                     <div style={{display: "flex", marginLeft: "auto"}}>
                         {this.props.showLegendToggle && this.legendToggle}

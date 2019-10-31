@@ -67,6 +67,7 @@ export type LollipopMutationPlotProps = {
     showYMaxSlider?: boolean;
     showLegendToggle?: boolean;
     showDownloadControls?: boolean;
+    filterResetPanel?: JSX.Element;
     legend?: JSX.Element;
     loadingIndicator?: JSX.Element;
 };
@@ -519,6 +520,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                         bottomYMaxSliderStep={this.bottomYMaxSliderStep}
                         bottomYMaxInput={this.bottomYMaxInput}
                         customControls={this.props.customControls}
+                        filterResetPanel={this.props.filterResetPanel}
                         trackVisibility={this.trackVisibility}
                         tracks={this.props.tracks}
                         trackDataStatus={this.props.trackDataStatus}
