@@ -4,7 +4,8 @@ import {
     DefaultTooltip,
     Gnomad,
     Homozygotes,
-    MyVariantInfo
+    MyVariantInfo,
+    VariantAnnotation
 } from "cbioportal-frontend-commons";
 import _ from "lodash";
 import {observer} from "mobx-react";
@@ -37,13 +38,13 @@ export function calculateAlleleFrequency(count: number | null,
     }
 }
 
-export function generateGnomadUrl(chromosome: String | null,
-                                  start: number | null,
-                                  reference: String | null,
-                                  variant: String | null)
+export function generateGnomadUrl(chromosome: string | null,
+                                  position: string | null,
+                                  reference: string | null,
+                                  variant: string | null)
 {
-    if (chromosome && start && reference && variant) {
-        return `https://gnomad.broadinstitute.org/variant/${chromosome}-${start}-${reference}-${variant}`;
+    if (chromosome && position && reference && variant) {
+        return `https://gnomad.broadinstitute.org/variant/${chromosome}-${position}-${reference}-${variant}`;
     }
     else {
         return "https://gnomad.broadinstitute.org/";
@@ -75,6 +76,7 @@ export function setGnomadTableData(key: string, data: Gnomad, result: {[key:stri
 
 export type GnomadFrequencyProps = {
     myVariantInfo?: MyVariantInfo;
+    annotation?: VariantAnnotation
 }
 
 @observer
@@ -93,8 +95,11 @@ export default class GnomadFrequency extends React.Component<GnomadFrequencyProp
         // Checking if gnomad data is valid
         if (myVariantInfo && (myVariantInfo.gnomadExome || myVariantInfo.gnomadGenome)) {
             // get gnomad link from chrom, location, ref and alt
-            gnomadUrl = (myVariantInfo && myVariantInfo.dbsnp) ? generateGnomadUrl(
-                myVariantInfo.dbsnp.chrom, myVariantInfo.dbsnp.hg19.start, myVariantInfo.dbsnp.ref, myVariantInfo.dbsnp.alt) : "";
+            gnomadUrl = (myVariantInfo && myVariantInfo.vcf) ? generateGnomadUrl(
+                this.props.annotation ? this.props.annotation.seq_region_name : null,
+                myVariantInfo.vcf.position,
+                myVariantInfo.vcf.ref,
+                myVariantInfo.vcf.alt) : "";
 
             const gnomadExome: { [key: string]: GnomadSummary } = {};
             const gnomadGenome: { [key: string]: GnomadSummary } = {};

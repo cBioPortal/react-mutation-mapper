@@ -1,5 +1,5 @@
 import autobind from "autobind-decorator";
-import {MyVariantInfo} from "cbioportal-frontend-commons";
+import {MyVariantInfo, VariantAnnotation} from "cbioportal-frontend-commons";
 import {observer} from "mobx-react";
 import * as React from "react";
 
@@ -64,7 +64,7 @@ export default class Gnomad extends React.Component<MyVariantInfoProps, {}>
     }
 
     @autobind
-    public getContent(myVariantInfo: MyVariantInfo) {
-        return <GnomadFrequency myVariantInfo={myVariantInfo} />;
+    public getContent(myVariantInfo: MyVariantInfo, variantAnnotation?: VariantAnnotation) {
+        return <GnomadFrequency myVariantInfo={myVariantInfo} annotation={variantAnnotation}/>;
     }
 }

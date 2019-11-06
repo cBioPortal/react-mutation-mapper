@@ -255,6 +255,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                     oncoKbCancerGenes={this.store.oncoKbCancerGenes}
                     oncoKbEvidenceCache={this.store.oncoKbEvidenceCache}
                     indexedMyVariantInfoAnnotations={this.store.indexedMyVariantInfoAnnotations}
+                    indexedVariantAnnotations={this.store.indexedVariantAnnotations}
                     pubMedCache={this.pubMedCache}
                     info={this.mutationTableInfo}
                 />
