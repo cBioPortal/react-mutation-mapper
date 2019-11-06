@@ -40,3 +40,20 @@ export function getMyVariantInfoAnnotation(mutation?: Mutation,
 
     return myVariantInfo;
 }
+
+export function getVariantAnnotation(mutation?: Mutation,
+                                     indexedVariantAnnotations?: {[genomicLocation: string]: VariantAnnotation})
+{
+    let variantAnnotation: VariantAnnotation | undefined;
+
+    if (mutation && indexedVariantAnnotations) {
+        const genomicLocation = extractGenomicLocation(mutation);
+        const key = genomicLocation ? genomicLocationString(genomicLocation) : undefined;
+
+        if (key) {
+            variantAnnotation = indexedVariantAnnotations[key];
+        }
+    }
+
+    return variantAnnotation;
+}

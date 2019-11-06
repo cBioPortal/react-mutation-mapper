@@ -1,4 +1,4 @@
-import {MyVariantInfo} from "cbioportal-frontend-commons";
+import {MyVariantInfo, VariantAnnotation} from "cbioportal-frontend-commons";
 import _ from "lodash";
 import {action, computed} from "mobx";
 import {observer} from "mobx-react";
@@ -28,6 +28,7 @@ export type DefaultMutationTableProps = {
     oncoKbData?: RemoteData<IOncoKbData | Error | undefined>;
     oncoKbCancerGenes?: RemoteData<CancerGene[] | Error | undefined>;
     indexedMyVariantInfoAnnotations?: RemoteData<{[genomicLocation: string]: MyVariantInfo} | undefined>;
+    indexedVariantAnnotations?: RemoteData<{[genomicLocation: string]: VariantAnnotation} | undefined>;
     oncoKbEvidenceCache?: SimpleCache;
     pubMedCache?: MobxCache;
     columns: Column<Partial<Mutation>>[];
@@ -122,6 +123,7 @@ export default class DefaultMutationTable extends React.Component<DefaultMutatio
                     <Gnomad
                         mutation={column.original}
                         indexedMyVariantInfoAnnotations={this.props.indexedMyVariantInfoAnnotations}
+                        indexedVariantAnnotations={this.props.indexedVariantAnnotations}
                     />;
             case MutationColumn.CLINVAR:
                 return (column: any) =>
