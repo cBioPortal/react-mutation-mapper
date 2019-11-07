@@ -1,3 +1,7 @@
+export {
+    default as ClinVar,
+    sortValue as clinVarSortValue
+} from "./component/column/ClinVar";
 export {default as ColumnHeader} from "./component/column/ColumnHeader";
 export {
     default as HotspotAnnotation,
@@ -55,7 +59,14 @@ export {default as ReferenceList} from "./component/oncokb/ReferenceList";
 export {default as RefComponent} from "./component/oncokb/RefComponent";
 export {default as SummaryWithRefs} from "./component/oncokb/SummaryWithRefs";
 
-export {default as GnomadFrequency} from "./component/gnomad/GnomadFrequency";
+export {
+    default as ClinVarId,
+    getClinVarId
+} from "./component/clinvar/ClinVarId";
+export {
+    default as GnomadFrequency,
+    calculateAlleleFrequency as calculateGnomadAllelFrequency
+} from "./component/gnomad/GnomadFrequency";
 export {default as GnomadFrequencyTable} from "./component/gnomad/GnomadFrequencyTable";
 
 export * from "./component/ColumnSelector";
