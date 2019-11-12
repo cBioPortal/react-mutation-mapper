@@ -67,7 +67,9 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
     @autobind
     @action
     protected onBackgroundClick() {
-        this.props.dataStore.clearSelectionFilters();
+        if (this.props.dataStore) {
+            this.props.dataStore.clearSelectionFilters();
+        }
     }
 
     @autobind
@@ -81,7 +83,9 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
     @autobind
     @action
     protected onLollipopClick(codon: number) {
-        updatePositionSelectionFilters(this.props.dataStore, codon, this.shiftPressed);
+        if (this.props.dataStore) {
+            updatePositionSelectionFilters(this.props.dataStore, codon, this.shiftPressed);
+        }
     }
 
     @autobind
@@ -120,9 +124,11 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
                     this.props.setHitZone(
                         lollipopComponent.circleHitRect,
                         lollipopComponent.props.spec.tooltip,
-                        action(()=>{
-                            updatePositionHighlightFilters(this.props.dataStore,
-                                lollipopComponent.props.spec.codon);
+                        action(() => {
+                            if (this.props.dataStore) {
+                                updatePositionHighlightFilters(this.props.dataStore,
+                                    lollipopComponent.props.spec.codon);
+                            }
                             lollipopComponent.isHovered = true;
                         }),
                         action(()=>this.onLollipopClick(lollipopComponent.props.spec.codon))
@@ -156,7 +162,7 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
                 if (this.props.setHitZone) {
                     this.props.setHitZone(
                         sequenceComponent.hitRect,
-                        sequenceComponent.props.spec.tooltip,
+                        sequenceComponent.props.spec ? sequenceComponent.props.spec.tooltip: undefined,
                         undefined, undefined, undefined,
                         "auto"
                     );
@@ -177,7 +183,10 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
 
     private unhoverAllLollipops() {
         unhoverAllComponents(this.lollipopComponents);
-        this.props.dataStore.clearHighlightFilters();
+
+        if (this.props.dataStore) {
+            this.props.dataStore.clearHighlightFilters();
+        }
     }
 
     componentDidMount() {
@@ -484,9 +493,10 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
                     stickBaseY={stickBaseY}
                     stickHeight={stickHeight}
                     headRadius={
-                        this.props.dataStore.isPositionSelected(lollipop.codon) ||
-                        this.props.dataStore.isPositionHighlighted(lollipop.codon) ?
-                            5 : 2.8
+                        this.props.dataStore && (
+                            this.props.dataStore.isPositionSelected(lollipop.codon) ||
+                            this.props.dataStore.isPositionHighlighted(lollipop.codon)
+                        ) ? 5 : 2.8
                     }
                     hoverHeadRadius={hoverHeadRadius}
                     label={lollipop.label}
@@ -529,8 +539,8 @@ export default class LollipopPlotNoTooltip extends React.Component<LollipopPlotN
                   symbol: string = "#")
     {
         const label = groupName ?
-            `${symbol} ${this.props.hugoGeneSymbol} ${groupName} Mutations` :
-            `${symbol} ${this.props.hugoGeneSymbol} Mutations`;
+            `${symbol} ${this.props.hugoGeneSymbol || ""} ${groupName} Mutations` :
+            `${symbol} ${this.props.hugoGeneSymbol || ""} Mutations`;
 
         const placeOnBottom = placement === LollipopPlacement.BOTTOM;
 
