@@ -51,7 +51,7 @@ export type MutationMapperProps = {
     plotBottomYAxisDefaultMin?: number;
     plotYAxisLabelPadding?: number;
     plotLollipopTooltipCountInfo?: (count: number, mutations?: Partial<Mutation>[]) => JSX.Element;
-    plotLollipopHeight?: number;
+    plotVizHeight?: number;
     customControls?: JSX.Element;
     mutationTable?: JSX.Element;
     mutationTableInitialSortColumn?: string;
@@ -271,6 +271,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 controlsConfig={this.lollipopPlotControlsConfig}
                 pubMedCache={this.pubMedCache}
                 geneWidth={this.geneWidth}
+                vizHeight={this.props.plotVizHeight}
                 trackVisibility={this.trackVisibility}
                 customControls={this.customControls}
                 tracks={this.props.tracks}
@@ -297,7 +298,6 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                 topYAxisDefaultMin={this.plotBottomYAxisDefaultMin}
                 bottomYAxisDefaultMax={this.plotBottomYAxisDefaultMax}
                 bottomYAxisDefaultMin={this.plotBottomYAxisDefaultMin}
-                plotLollipopHeight={this.props.plotLollipopHeight}
                 lollipopTooltipCountInfo={this.props.plotLollipopTooltipCountInfo}
             />
         );

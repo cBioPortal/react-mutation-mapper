@@ -53,11 +53,11 @@ export type LollipopMutationPlotProps = {
     bottomYAxisDefaultMax?: number;
     bottomYAxisDefaultMin?: number;
     yAxisLabelPadding?: number;
-    plotLollipopHeight?: number;
     lollipopTooltipCountInfo?: (count: number, mutations?: Partial<Mutation>[]) => JSX.Element;
     customControls?: JSX.Element;
     onXAxisOffset?: (offset:number) => void;
     geneWidth: number;
+    vizHeight?: number;
     trackVisibility?: TrackVisibility;
     tracks?: TrackName[];
     trackDataStatus?: TrackDataStatus;
@@ -537,7 +537,7 @@ export default class LollipopMutationPlot extends React.Component<LollipopMutati
                         domains={this.domains}
                         dataStore={this.props.store.dataStore}
                         vizWidth={this.props.geneWidth}
-                        vizHeight={this.props.plotLollipopHeight}
+                        vizHeight={this.props.vizHeight}
                         hugoGeneSymbol={this.hugoGeneSymbol}
                         xMax={this.proteinLength}
                         yMax={this.yMaxInput}

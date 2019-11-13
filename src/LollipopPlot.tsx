@@ -10,7 +10,7 @@ import {DomainSpec} from "./model/DomainSpec";
 import LollipopPlotNoTooltip from "./LollipopPlotNoTooltip";
 
 export type LollipopPlotProps = {
-    sequence: SequenceSpec;
+    sequence?: SequenceSpec;
     lollipops: LollipopSpec[];
     domains: DomainSpec[];
     vizWidth: number;
@@ -28,8 +28,8 @@ export type LollipopPlotProps = {
     topYAxisSymbol?: string;
     bottomYAxisSymbol?: string;
     zeroStickBaseY?: boolean;
-    hugoGeneSymbol: string;
-    dataStore: DataStore;
+    hugoGeneSymbol?: string;
+    dataStore?: DataStore;
     onXAxisOffset?: (offset: number) => void;
 };
 
