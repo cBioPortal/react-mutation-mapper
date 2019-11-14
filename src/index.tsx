@@ -46,11 +46,24 @@ export {
 } from "./component/filter/MutationStatusBadgeSelector";
 
 export {
+    default as Civic,
+    sortValue as civicSortValue
+} from "./component/civic/Civic";
+export {
+    default as ClinVarId,
+    getClinVarId
+} from "./component/clinvar/ClinVarId";
+export {
     default as OncoKB,
     sortValue as oncoKbAnnotationSortValue,
     download as oncoKbAnnotationDownload,
     IOncoKbProps
 } from "./component/oncokb/OncoKB";
+export {
+    default as GnomadFrequency,
+    calculateAlleleFrequency as calculateGnomadAllelFrequency
+} from "./component/gnomad/GnomadFrequency";
+export {default as GnomadFrequencyTable} from "./component/gnomad/GnomadFrequencyTable";
 export {default as OncoKBSuggestAnnotationLinkout} from "./component/oncokb/OncoKBSuggestAnnotationLinkout";
 export {default as OncoKbTreatmentTable} from "./component/oncokb/OncoKbTreatmentTable";
 export {default as OncoKbFeedback} from "./component/oncokb/OncoKbFeedback";
@@ -58,16 +71,6 @@ export {default as OncoKbTooltip} from "./component/oncokb/OncoKbTooltip";
 export {default as ReferenceList} from "./component/oncokb/ReferenceList";
 export {default as RefComponent} from "./component/oncokb/RefComponent";
 export {default as SummaryWithRefs} from "./component/oncokb/SummaryWithRefs";
-
-export {
-    default as ClinVarId,
-    getClinVarId
-} from "./component/clinvar/ClinVarId";
-export {
-    default as GnomadFrequency,
-    calculateAlleleFrequency as calculateGnomadAllelFrequency
-} from "./component/gnomad/GnomadFrequency";
-export {default as GnomadFrequencyTable} from "./component/gnomad/GnomadFrequencyTable";
 
 export * from "./component/dataTable/ColumnSelector";
 export * from "./component/mutationMapper/FilterResetPanel";
@@ -115,6 +118,7 @@ export {RemoteData} from "./model/RemoteData";
 export {SequenceSpec} from "./model/SequenceSpec";
 
 export * from "./util/CancerHotspotsUtils";
+export * from "./util/CivicUtils";
 export * from "./util/DataFetcherUtils";
 export * from "./util/FilterUtils";
 export * from "./util/FormatUtils";

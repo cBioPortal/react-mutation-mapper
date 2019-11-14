@@ -61,6 +61,7 @@ export type MutationMapperProps = {
     // TODO annotateMutations?: boolean;
     genomeNexusUrl?: string;
     oncoKbUrl?: string;
+    enableCivic?: boolean;
     cachePostMethodsOnClients?: boolean;
     apiCacheLimit?: number;
     showTranscriptDropDown?: boolean;
@@ -98,6 +99,7 @@ export function initDefaultMutationMapperStore(props: MutationMapperProps)
             filterMutationsBySelectedTranscript: props.filterMutationsBySelectedTranscript,
             genomeNexusUrl: props.genomeNexusUrl,
             oncoKbUrl: props.oncoKbUrl,
+            enableCivic: props.enableCivic,
             cachePostMethodsOnClients: props.cachePostMethodsOnClients,
             apiCacheLimit: props.apiCacheLimit,
             getMutationCount: props.getMutationCount,
@@ -120,6 +122,7 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
         showFilterResetPanel: true,
         showOnlyAnnotatedTranscriptsInDropdown: false,
         showTranscriptDropDown: false,
+        enableCivic: true,
         filterMutationsBySelectedTranscript: false,
         cachePostMethodsOnClients: true
     };
@@ -255,6 +258,9 @@ export default class MutationMapper<P extends MutationMapperProps = MutationMapp
                     oncoKbData={this.store.oncoKbData}
                     oncoKbCancerGenes={this.store.oncoKbCancerGenes}
                     oncoKbEvidenceCache={this.store.oncoKbEvidenceCache}
+                    enableCivic={this.props.enableCivic}
+                    civicGenes={this.store.civicGenes}
+                    civicVariants={this.store.civicVariants}
                     indexedMyVariantInfoAnnotations={this.store.indexedMyVariantInfoAnnotations}
                     indexedVariantAnnotations={this.store.indexedVariantAnnotations}
                     pubMedCache={this.pubMedCache}

@@ -6,6 +6,7 @@ import MobxPromise, {cached} from "mobxpromise";
 
 import OncoKbEvidenceCache from "../cache/OncoKbEvidenceCache";
 import {AggregatedHotspots, GenomicLocation, Hotspot, IHotspotIndex} from "../model/CancerHotspot";
+import {ICivicGene, ICivicVariant} from "../model/Civic";
 import {DataFilter, DataFilterType} from "../model/DataFilter";
 import DataStore from "../model/DataStore";
 import {EnsemblTranscript} from "../model/EnsemblTranscript";
@@ -22,6 +23,7 @@ import {
     groupHotspotsByMutations,
     indexHotspotsData
 } from "../util/CancerHotspotsUtils";
+import {fetchCivicGenes, fetchCivicVariants} from "../util/CivicUtils";
 import {ONCOKB_DEFAULT_DATA} from "../util/DataFetcherUtils";
 import {applyDataFilters, groupDataByProteinImpactType} from "../util/FilterUtils";
 import {getMutationsToTranscriptId} from "../util/MutationAnnotator";
@@ -41,6 +43,7 @@ interface DefaultMutationMapperStoreConfig {
     filterMutationsBySelectedTranscript?: boolean;
     genomeNexusUrl?: string;
     oncoKbUrl?: string;
+    enableCivic?: boolean;
     cachePostMethodsOnClients?: boolean;
     apiCacheLimit?: number;
     getMutationCount?: (mutation: Partial<Mutation>) => number;
@@ -619,6 +622,35 @@ class DefaultMutationMapperStore implements MutationMapperStore
             return {};
         }
     }
+
+    readonly civicGenes: MobxPromise<ICivicGene | undefined> = remoteData({
+        await: () => [
+            this.mutationData,
+        ],
+        invoke: async() => this.config.enableCivic ?
+            fetchCivicGenes(this.mutationData.result || [], this.getDefaultEntrezGeneId) : {},
+        onError: () => {
+            // fail silently
+        }
+    }, undefined);
+
+    readonly civicVariants = remoteData<ICivicVariant | undefined>({
+        await: () => [
+            this.civicGenes,
+            this.mutationData
+        ],
+        invoke: async() => {
+            if (this.config.enableCivic && this.civicGenes.result) {
+                return fetchCivicVariants(this.civicGenes.result as ICivicGene, this.mutationData.result || []);
+            }
+            else {
+                return {};
+            }
+        },
+        onError: () => {
+            // fail silently
+        }
+    }, undefined);
 
     readonly indexedVariantAnnotations: MobxPromise<{[genomicLocation: string]: VariantAnnotation} | undefined> = remoteData({
         invoke: async () => this.getMutations() ?
