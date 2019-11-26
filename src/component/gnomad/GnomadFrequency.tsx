@@ -145,7 +145,7 @@ export default class GnomadFrequency extends React.Component<GnomadFrequencyProp
             if (result["Total"].alleleFrequency === 0) {
                 display = <span>0</span>;
             } else {
-                display = <span>{parseFloat(result["Total"].alleleFrequency.toString()).toExponential(1)}</span>;
+                display = <span>{result["Total"].alleleFrequency}</span>;
             }
 
             overlay = () => <GnomadFrequencyTable data={sorted} gnomadUrl={gnomadUrl} />;

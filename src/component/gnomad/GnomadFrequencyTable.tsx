@@ -19,8 +19,7 @@ export function frequencyOutput(frequency: number) {
         return <span>0</span>
     }
     else {
-        // keep one digit on allele frequency and using scientific notation
-        return <span>{parseFloat(frequency.toString()).toExponential(1)}</span>;
+        return <span>{frequency}</span>;
     }
 }
 
@@ -143,7 +142,7 @@ export default class GnomadFrequencyTable extends React.Component<IGnomadFrequen
                                 <span className="pull-right mr-1" data-test="allele-frequency-data">
                                     {frequencyOutput(column.value)}
                                 </span>,
-                            width: 80
+                            width: 120
                         },
                     ]}
                 />
